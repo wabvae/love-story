@@ -386,27 +386,31 @@ body {
 .footer-text { color:var(--text-secondary); font-size:14px; }
 .footer-date { color:#d4b5c4; font-size:12px; margin-top:8px; }
 
-/* ===== Music Player ===== */
-.music-player {
+/* ===== NetEase Music Player ===== */
+.netease-player {
   position:fixed; bottom:24px; right:24px; z-index:50;
-  display:flex; align-items:center; gap:10px;
-  padding:10px 18px; border-radius:50px;
-  background: rgba(255,255,255,0.9);
+  border-radius:16px;
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow);
-  max-width:300px; cursor:pointer;
+  box-shadow: 0 8px 32px rgba(255,107,157,0.12);
+  width: 280px;
+  overflow: hidden;
   animation: playerIn 1s ease 2s both;
 }
 @keyframes playerIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-.music-toggle { background:none; border:none; font-size:20px; cursor:pointer; padding:4px; }
-.music-info { flex:1; min-width:0; }
-.music-title { font-size:13px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.music-artist { font-size:11px; color:var(--text-secondary); }
-.music-progress { flex:1; height:3px; background:#f5d6e0; border-radius:2px; overflow:hidden; max-width:80px; }
-.music-progress-bar { height:100%; background:var(--primary); width:0%; border-radius:2px; transition:width 0.3s; }
-.music-vol-btn { background:none; border:none; font-size:14px; cursor:pointer; }
-.music-volume { width:60px; height:4px; accent-color:var(--primary); }
+.netease-header {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 14px;
+  cursor:pointer;
+  border-bottom: 1px solid var(--glass-border);
+}
+.netease-icon { font-size:18px; }
+.netease-title { font-size:13px; font-weight:600; color:var(--text); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.netease-artist { font-size:11px; color:var(--text-secondary); white-space:nowrap; }
+.netease-toggle { background:none; border:none; font-size:16px; color:var(--text-secondary); cursor:pointer; padding:2px 6px; }
+.netease-body { transition:max-height 0.3s ease; max-height:66px; overflow:hidden; }
+.netease-body.collapsed { max-height:0; }
 
 /* ===== Lightbox ===== */
 .lightbox {
