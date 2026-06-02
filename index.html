@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我们的故事</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 密码页 -->
+<div id="loginPage" class="login-page">
+  <div class="login-box">
+    <div class="heart">💕</div>
+    <h1>我们的故事</h1>
+    <p class="login-hint">输入密码，进入我们的世界</p>
+    <input type="password" id="pwdInput" placeholder="请输入密码" class="pwd-input" autofocus>
+    <button onclick="checkPwd()" class="login-btn">进入</button>
+    <p id="pwdError" class="pwd-error"></p>
+  </div>
+</div>
+
+<!-- 主页面 -->
+<div id="mainPage" class="main-page" style="display:none">
+  <header class="header">
+    <div class="header-inner">
+      <h1 class="site-title">💕 我们的故事</h1>
+      <div class="header-controls">
+        <span id="currentMonth" class="current-month">全部回忆</span>
+        <button onclick="toggleFilter()" class="filter-btn" id="filterBtn">📅 筛选</button>
+      </div>
+    </div>
+    <!-- 筛选栏 -->
+    <div id="filterBar" class="filter-bar" style="display:none">
+      <button class="filter-tag active" onclick="filterAll()">全部</button>
+    </div>
+  </header>
+
+  <main class="content" id="content">
+    <div class="timeline-line"></div>
+    <div id="cardsContainer" class="cards-container"></div>
+  </main>
+
+  <footer class="footer">
+    <p>💕 每一天都是最好的礼物</p>
+  </footer>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
