@@ -1,4 +1,4 @@
-/* ===== Password ===== */
+﻿/* ===== Password ===== */
 function checkPwd() {
   var input = document.getElementById('pwdInput').value;
   if (input === SITE_PASSWORD) {
@@ -382,15 +382,90 @@ document.addEventListener('keydown', function(e) {
 /* ===== Music Player ===== */
 function toggleMusicPanel() {
   var panel = document.getElementById('musicPanel');
-  if (panel) panel.classList.toggle('show');
+  if (!panel) return;
+  panel.classList.toggle('show');
+  if (panel.classList.contains('show')) {
+    setTimeout(function() { playMelody(); }, 300);
+  }
 }
 
-function playTone() {
+function playMelody() {
   try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    var now = ctx.currentTime;
-    var notes = [
-      {freq:523.25, t:0, d:0.2},{freq:587.33, t:0.2, d:0.2},{freq:659.25, t:0.4, d:0.2},
+    var ac = new (window.AudioContext || window.webkitAudioContext)();
+    var now = ac.currentTime;
+    
+    // "I Really Like You" inspired melody - main hook
+    // Using a pleasant sine wave + harmonics
+    function note(freq, start, dur, vol) {
+      var osc = ac.createOscillator();
+      var gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol || 0.25, now + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+      osc.start(now + start);
+      osc.stop(now + start + dur);
+      
+      // Add a soft harmonic
+      var osc2 = ac.createOscillator();
+      var gain2 = ac.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ac.destination);
+      osc2.type = 'sine';
+      osc2.frequency.value = freq * 2;
+      gain2.gain.setValueAtTime((vol||0.25)*0.15, now + start);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+      osc2.start(now + start);
+      osc2.stop(now + start + dur);
+    }
+    
+    // Main melody 
+    var melody = [
+      [523, 0, 0.18], [587, 0.2, 0.18], [659, 0.4, 0.18],
+      [784, 0.6, 0.25], [659, 0.9, 0.12], [784, 1.05, 0.25],
+      [1047, 1.35, 0.35], [784, 1.75, 0.12], [659, 1.9, 0.12],
+      [587, 2.05, 0.12], [523, 2.2, 0.35],
+      [587, 2.6, 0.12], [659, 2.75, 0.12], [784, 2.9, 0.25],
+      [659, 3.2, 0.25], [523, 3.5, 0.5],
+      [659, 4.1, 0.2], [784, 4.3, 0.2], [880, 4.5, 0.3],
+      [784, 4.8, 0.15], [659, 4.95, 0.15], [587, 5.1, 0.3],
+      [523, 5.4, 0.2], [587, 5.6, 0.2], [659, 5.8, 0.3],
+      [784, 6.1, 0.6]
+    ];
+    
+    melody.forEach(function(n) { note(n[0], n[1], n[2], 0.2); });
+    
+    // Add bass notes
+    var bass = [
+      [262, 0, 0.8], [330, 0.8, 0.8], [392, 1.6, 0.8],
+      [330, 2.4, 0.8], [262, 3.2, 1.0], [330, 4.2, 0.8],
+      [392, 5.0, 0.8], [262, 5.8, 1.2]
+    ];
+    bass.forEach(function(n) {
+      var osc = ac.createOscillator();
+      var gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'sine';
+      osc.frequency.value = n[0];
+      gain.gain.setValueAtTime(0.08, now + n[1]);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n[1] + n[2]);
+      osc.start(now + n[1]);
+      osc.stop(now + n[1] + n[2]);
+    });
+    
+    var icon = document.getElementById('musicFloatIcon');
+    if (icon) { icon.textContent = '🎶'; }
+    setTimeout(function() {
+      if (icon) icon.textContent = '🎵';
+    }, 7000);
+    
+  } catch(e) {
+    console.log('Audio not available');
+  }
+},{freq:587.33, t:0.2, d:0.2},{freq:659.25, t:0.4, d:0.2},
       {freq:783.99, t:0.6, d:0.3},{freq:659.25, t:0.9, d:0.15},{freq:783.99, t:1.05, d:0.3},
       {freq:1046.5, t:1.35, d:0.4},{freq:783.99, t:1.75, d:0.15},{freq:659.25, t:1.9, d:0.15},
       {freq:587.33, t:2.05, d:0.15},{freq:523.25, t:2.2, d:0.4},{freq:587.33, t:2.6, d:0.15},
@@ -415,3 +490,4 @@ function playTone() {
     alert('Cannot play audio, try the NetEase player instead');
   }
 }
+
