@@ -1,4 +1,4 @@
-/* ===== å¯†ç éªŒè¯ ===== */
+/* ===== Password ===== */
 function checkPwd() {
   var input = document.getElementById('pwdInput').value;
   if (input === SITE_PASSWORD) {
@@ -9,7 +9,7 @@ function checkPwd() {
     setTimeout(function() { document.getElementById('loader').style.display = 'none'; }, 800);
     initApp();
   } else {
-    document.getElementById('pwdError').textContent = 'å¯†ç ä¸å¯¹å“¦ï¼Œå†è¯•è¯?ğŸ’•';
+    document.getElementById('pwdError').textContent = 'Wrong password, try again';
     document.getElementById('pwdInput').value = '';
     document.getElementById('pwdInput').focus();
   }
@@ -20,13 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.key === 'Enter') checkPwd();
   });
   initLoginParticles();
-  // Auto-hide loader after 2s if already logged in
-  setTimeout(function() {
-    document.getElementById('loader').classList.add('hide');
-  }, 2000);
+  setTimeout(function() { document.getElementById('loader').classList.add('hide'); }, 2000);
 });
 
-/* ===== ç™»å½•é¡µç²’å­?===== */
+/* ===== Particles ===== */
 function initLoginParticles() {
   var c = document.getElementById('loginParticles');
   if (!c) return;
@@ -34,27 +31,19 @@ function initLoginParticles() {
   c.width = window.innerWidth;
   c.height = window.innerHeight;
   var particles = [];
-  for (var i = 0; i < 60; i++) {
-    particles.push({
-      x: Math.random() * c.width, y: Math.random() * c.height,
-      size: Math.random() * 6 + 2,
-      speedX: (Math.random() - 0.5) * 0.5,
-      speedY: (Math.random() - 0.5) * 0.5,
-      alpha: Math.random() * 0.5 + 0.1
-    });
-  }
+  for (var i = 0; i < 60; i++) particles.push({
+    x: Math.random() * c.width, y: Math.random() * c.height,
+    size: Math.random() * 6 + 2, speedX: (Math.random() - 0.5) * 0.5,
+    speedY: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.1
+  });
   function animate() {
     ctx.clearRect(0, 0, c.width, c.height);
     particles.forEach(function(p) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(233,30,99,' + p.alpha + ')';
-      ctx.fill();
-      p.x += p.speedX; p.y += p.speedY;
-      if (p.x < 0) p.x = c.width;
-      if (p.x > c.width) p.x = 0;
-      if (p.y < 0) p.y = c.height;
-      if (p.y > c.height) p.y = 0;
+      ctx.fill(); p.x += p.speedX; p.y += p.speedY;
+      if (p.x < 0) p.x = c.width; if (p.x > c.width) p.x = 0;
+      if (p.y < 0) p.y = c.height; if (p.y > c.height) p.y = 0;
     });
     requestAnimationFrame(animate);
   }
@@ -62,7 +51,7 @@ function initLoginParticles() {
   window.addEventListener('resize', function() { c.width = window.innerWidth; c.height = window.innerHeight; });
 }
 
-/* ===== ä¸»åº”ç”?===== */
+/* ===== App ===== */
 var allPhotos = [];
 var lightboxPhotos = [];
 var lightboxIndex = 0;
@@ -78,22 +67,23 @@ function initApp() {
   renderLetters();
   buildFilters();
   initHeroCanvas();
-  
   initScroll();
   initNavbar();
 }
 
-/* ===== å·¥å…· ===== */
 function getLoveDays() {
   var s = new Date(LOVE_START_DATE), t = new Date();
   s.setHours(0,0,0,0); t.setHours(0,0,0,0);
   return Math.floor((t - s) / 86400000);
 }
+
 function formatDate(d) {
-  var p = d.split('-'), weekdays = ['æ—?,'ä¸€','äº?,'ä¸?,'å›?,'äº?,'å…?];
+  var p = d.split('-');
+  var weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var dt = new Date(p[0], p[1]-1, p[2]);
-  return p[0] + 'å¹? + parseInt(p[1]) + 'æœ? + parseInt(p[2]) + 'æ—?æ˜ŸæœŸ' + weekdays[dt.getDay()];
+  return p[0] + '-' + p[1] + '-' + p[2] + ' ' + weekdays[dt.getDay()];
 }
+
 function escHtml(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
 function collectPhotos() {
@@ -103,7 +93,6 @@ function collectPhotos() {
   });
 }
 
-/* ===== Stats ===== */
 function renderStats() {
   var days = getLoveDays();
   document.getElementById('daysDisplay').textContent = days;
@@ -113,19 +102,19 @@ function renderStats() {
   var msgs = 0;
   memories.forEach(function(m) { if (m.chats) msgs += m.chats.length; });
   document.getElementById('statMessages').textContent = msgs;
-  document.getElementById('heroQuote').textContent = loveQuotes[Math.floor(Math.random() * loveQuotes.length)];
+  document.querySelector('.counter-sublabel').textContent = 'since ' + LOVE_START_DATE;
 }
 
-/* ===== Milestones ===== */
 function renderMilestones() {
   var grid = document.getElementById('milestonesGrid');
+  if (!grid) return;
   var items = [
-    { label:'åœ¨ä¸€èµ?, date:LOVE_START_DATE, icon:'ğŸ’•' },
-    { label:'ä¸€ä¸ªæœˆ', date:addDate(LOVE_START_DATE,0,1), icon:'ğŸ‰' },
-    { label:'100å¤?, date:addDate(LOVE_START_DATE,100,0), icon:'ğŸ’¯' },
-    { label:'åŠå¹´', date:addDate(LOVE_START_DATE,0,6), icon:'ğŸŠ' },
-    { label:'ä¸€å¹?, date:addDate(LOVE_START_DATE,0,12), icon:'ğŸ‚' },
-    { label:'500å¤?, date:addDate(LOVE_START_DATE,500,0), icon:'ğŸŒŸ' }
+    { label:'Together', date:LOVE_START_DATE, icon:'ğŸ’•' },
+    { label:'1 Month', date:addDate(LOVE_START_DATE,0,1), icon:'ğŸ‰' },
+    { label:'100 Days', date:addDate(LOVE_START_DATE,100,0), icon:'ğŸ’¯' },
+    { label:'Half Year', date:addDate(LOVE_START_DATE,0,6), icon:'ğŸŠ' },
+    { label:'1 Year', date:addDate(LOVE_START_DATE,0,12), icon:'ğŸ‚' },
+    { label:'500 Days', date:addDate(LOVE_START_DATE,500,0), icon:'ğŸŒŸ' }
   ];
   var today = new Date(); today.setHours(0,0,0,0);
   grid.innerHTML = '';
@@ -138,10 +127,11 @@ function renderMilestones() {
     el.innerHTML = '<div class="milestone-icon">' + m.icon + '</div>' +
       '<div class="milestone-info"><div class="milestone-label">' + m.label + '</div>' +
       '<div class="milestone-date">' + m.date + '</div></div>' +
-      '<div class="milestone-status">' + (passed ? 'âœ?å·²è¾¾æˆ? : 'â?' + remain + 'å¤©å') + '</div>';
+      '<div class="milestone-status">' + (passed ? 'Done' : 'in ' + remain + 'd') + '</div>';
     grid.appendChild(el);
   });
 }
+
 function addDate(base, days, months) {
   var d = new Date(base);
   if (months) d.setMonth(d.getMonth() + months);
@@ -149,9 +139,9 @@ function addDate(base, days, months) {
   return d.toISOString().substring(0,10);
 }
 
-/* ===== Photo Strip ===== */
 function renderPhotoStrip() {
   var strip = document.getElementById('photoStrip');
+  if (!strip) return;
   var recent = allPhotos.slice(0, 6);
   strip.innerHTML = '';
   recent.forEach(function(src) {
@@ -162,9 +152,9 @@ function renderPhotoStrip() {
   });
 }
 
-/* ===== Latest Memories ===== */
 function renderLatestMemories() {
   var container = document.getElementById('latestMemories');
+  if (!container) return;
   var latest = memories.slice(0, 5);
   container.innerHTML = '';
   latest.forEach(function(m) {
@@ -173,18 +163,18 @@ function renderLatestMemories() {
     el.className = 'latest-card';
     el.onclick = function() { switchPage('story'); };
     el.innerHTML = '<div class="latest-card-icon">ğŸ’•</div>' +
-      '<div class="latest-card-info"><div class="latest-card-title">' + (m.title || 'å›å¿†') + '</div>' +
+      '<div class="latest-card-info"><div class="latest-card-title">' + (m.title || 'Memory') + '</div>' +
       '<div class="latest-card-date">' + m.date + '</div>' +
       '<div class="latest-card-text">' + escHtml(text.substring(0,40)) + '</div></div>';
     container.appendChild(el);
   });
 }
 
-/* ===== Timeline ===== */
 function renderTimeline(items) {
   var tl = document.getElementById('timeline');
+  if (!tl) return;
   tl.innerHTML = '';
-  if (!items.length) { tl.innerHTML = '<div style="text-align:center;padding:40px;color:' + getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') + '">è¿˜æ²¡æœ‰å›å¿?ğŸ’•</div>'; return; }
+  if (!items.length) { tl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">No memories yet</div>'; return; }
   items.forEach(function(m) {
     var card = document.createElement('div');
     card.className = 'timeline-card';
@@ -192,7 +182,7 @@ function renderTimeline(items) {
     if (m.title) html += '<div class="timeline-title">' + m.title + '</div>';
     if (m.chats) {
       m.chats.forEach(function(c) {
-        var cls = (c.name === 'ä»? || c.name === 'æˆ?) ? 'his' : 'hers';
+        var cls = (c.name === 'He' || c.name === 'I') ? 'his' : 'hers';
         html += '<div class="chat-label">' + c.name + '</div>';
         html += '<div class="chat-bubble ' + cls + '">' + escHtml(c.text) + '</div>';
       });
@@ -200,9 +190,8 @@ function renderTimeline(items) {
     if (m.text) html += '<div class="timeline-text">' + escHtml(m.text) + '</div>';
     if (m.photos && m.photos.length) {
       var photoSrcs = JSON.stringify(m.photos.map(function(x){return 'photos/'+x}));
-      var cls = 'memory-photos';
-      if (m.photos.length === 1) cls += ' single'; else if (m.photos.length === 2) cls += ' double'; else cls += ' multiple';
-      html += '<div class="' + cls + '" style="display:grid;grid-template-columns:repeat(' + Math.min(m.photos.length,3) + ',1fr);gap:8px;margin-top:10px;">';
+      var nc = Math.min(m.photos.length,3);
+      html += '<div style="display:grid;grid-template-columns:repeat(' + nc + ',1fr);gap:8px;margin-top:10px;">';
       m.photos.forEach(function(p) {
         html += '<img src="photos/' + p + '" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer" onclick="event.stopPropagation();openLightbox(\'photos/' + p + '\',' + photoSrcs + ')">';
       });
@@ -213,9 +202,9 @@ function renderTimeline(items) {
   });
 }
 
-/* ===== Gallery ===== */
 function renderGallery() {
   var grid = document.getElementById('galleryMasonry');
+  if (!grid) return;
   grid.innerHTML = '';
   allPhotos.forEach(function(src) {
     var img = document.createElement('img');
@@ -225,20 +214,20 @@ function renderGallery() {
   });
 }
 
-/* ===== Filters ===== */
 function buildFilters() {
   var bar = document.getElementById('filterTabs');
+  if (!bar) return;
   var months = {};
   memories.forEach(function(m) { months[m.date.substring(0,7)] = true; });
   Object.keys(months).sort().reverse().forEach(function(ym) {
     var btn = document.createElement('button');
     btn.className = 'filter-tab';
-    btn.textContent = ym.split('-')[0] + 'å¹? + parseInt(ym.split('-')[1]) + 'æœ?;
-    btn.dataset.ym = ym;
+    btn.textContent = ym; btn.dataset.ym = ym;
     btn.onclick = function() { filterBy(ym); };
     bar.appendChild(btn);
   });
 }
+
 function filterBy(filter) {
   document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
   event.target.classList.add('active');
@@ -247,35 +236,36 @@ function filterBy(filter) {
   document.getElementById('timeline').scrollIntoView({behavior:'smooth'});
 }
 
-/* ===== ç•™è¨€æ?===== */
+/* ===== Letters ===== */
 function postLetter() {
   var input = document.getElementById('letterInput');
   var nameInput = document.getElementById('letterName');
   var text = input.value.trim();
-  var name = nameInput.value.trim() || 'ä»?;
+  var name = nameInput.value.trim() || 'He';
   if (!text) return;
   var letters = JSON.parse(localStorage.getItem('loveLetters') || '[]');
   letters.unshift({ name: name, text: text, time: new Date().toISOString() });
   localStorage.setItem('loveLetters', JSON.stringify(letters));
-  input.value = '';
-  renderLetters();
+  input.value = ''; renderLetters();
 }
+
 function renderLetters() {
   var wall = document.getElementById('lettersWall');
+  if (!wall) return;
   var letters = JSON.parse(localStorage.getItem('loveLetters') || '[]');
-  if (!letters.length) { wall.innerHTML = '<div class="empty-state">è¿˜æ²¡æœ‰ç•™è¨€ï¼Œå†™ä¸€æ¡å§ ğŸ’•</div>'; return; }
+  if (!letters.length) { wall.innerHTML = '<div class="empty-state">No messages yet</div>'; return; }
   wall.innerHTML = '';
   letters.forEach(function(l) {
     var el = document.createElement('div');
     el.className = 'letter-item';
-    var time = new Date(l.time);
-    var timeStr = time.getFullYear() + '-' + (time.getMonth()+1).toString().padStart(2,'0') + '-' + time.getDate().toString().padStart(2,'0') + ' ' + time.getHours().toString().padStart(2,'0') + ':' + time.getMinutes().toString().padStart(2,'0');
-    el.innerHTML = '<div class="letter-header"><span>' + (l.name === 'ä»? ? 'ğŸ’™' : 'ğŸ’•') + '</span><span class="letter-author">' + escHtml(l.name) + '</span><span class="letter-time">' + timeStr + '</span></div><div class="letter-content">' + escHtml(l.text) + '</div>';
+    var ts = new Date(l.time);
+    var t = ts.getFullYear() + '-' + (ts.getMonth()+1).toString().padStart(2,'0') + '-' + ts.getDate().toString().padStart(2,'0');
+    el.innerHTML = '<div class="letter-header"><span>' + (l.name==='He'?'ğŸ’™':'ğŸ’•') + '</span><span class="letter-author">' + escHtml(l.name) + '</span><span class="letter-time">' + t + '</span></div><div class="letter-content">' + escHtml(l.text) + '</div>';
     wall.appendChild(el);
   });
 }
 
-/* ===== é¡µé¢åˆ‡æ¢ ===== */
+/* ===== Pages ===== */
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
@@ -285,6 +275,7 @@ function switchPage(page) {
   window.scrollTo({top:0,behavior:'smooth'});
   document.getElementById('navMenu').classList.remove('open');
 }
+
 function toggleMenu() { document.getElementById('navMenu').classList.toggle('open'); }
 
 /* ===== Hero Canvas ===== */
@@ -295,21 +286,18 @@ function initHeroCanvas() {
   function resize() { c.width = c.parentElement.offsetWidth; c.height = c.parentElement.offsetHeight; }
   resize(); window.addEventListener('resize', resize);
   var particles = [];
-  for (var i = 0; i < 80; i++) {
-    particles.push({
-      x: Math.random() * c.width, y: Math.random() * c.height,
-      size: Math.random() * 3 + 1, alpha: Math.random() * 0.5 + 0.1,
-      speedX: (Math.random() - 0.5) * 0.3, speedY: (Math.random() - 0.5) * 0.3,
-      color: Math.random() > 0.5 ? '233,30,99' : '156,39,176'
-    });
-  }
+  for (var i = 0; i < 80; i++) particles.push({
+    x: Math.random() * c.width, y: Math.random() * c.height,
+    size: Math.random() * 3 + 1, alpha: Math.random() * 0.5 + 0.1,
+    speedX: (Math.random() - 0.5) * 0.3, speedY: (Math.random() - 0.5) * 0.3,
+    color: Math.random() > 0.5 ? '255,107,157' : '156,39,176'
+  });
   function anim() {
     ctx.clearRect(0,0,c.width,c.height);
     particles.forEach(function(p) {
       ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
       ctx.fillStyle = 'rgba(' + p.color + ',' + p.alpha + ')';
-      ctx.fill();
-      p.x += p.speedX; p.y += p.speedY;
+      ctx.fill(); p.x += p.speedX; p.y += p.speedY;
       if (p.x < 0) p.x = c.width; if (p.x > c.width) p.x = 0;
       if (p.y < 0) p.y = c.height; if (p.y > c.height) p.y = 0;
     });
@@ -318,36 +306,20 @@ function initHeroCanvas() {
   anim();
 }
 
-/* ===== éŸ³ä¹æ’­æ”¾å™?===== */
-var audioCtx = null;
-var isPlaying = false;
-
-function initMusicPlayer() { /* NetEase player is embedded */ }
-  }, 200);
-}
-
-
-
-
-
-/* ===== Scroll ===== */
 function initScroll() {
   window.addEventListener('scroll', function() {
     var btn = document.getElementById('backToTop');
-    btn.classList.toggle('show', window.scrollY > 500);
+    if (btn) btn.classList.toggle('show', window.scrollY > 500);
   });
 }
 
-/* ===== Navbar ===== */
 function initNavbar() {
   var lastY = 0;
   window.addEventListener('scroll', function() {
     var nav = document.getElementById('navbar');
-    if (window.scrollY > 100) {
-      nav.classList.toggle('hidden', window.scrollY > lastY && window.scrollY > 200);
-    } else {
-      nav.classList.remove('hidden');
-    }
+    if (!nav) return;
+    if (window.scrollY > 100) nav.classList.toggle('hidden', window.scrollY > lastY && window.scrollY > 200);
+    else nav.classList.remove('hidden');
     lastY = window.scrollY;
   });
 }
@@ -359,18 +331,12 @@ function openLightbox(src, allSrcs) {
   lightboxIndex = lightboxPhotos.indexOf(src);
   if (lightboxIndex < 0) lightboxIndex = 0;
   document.getElementById('lightbox').classList.add('show');
-  updateLbCounter();
-  document.body.style.overflow = 'hidden';
+  updateLbCounter(); document.body.style.overflow = 'hidden';
 }
 function closeLightbox(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('lightbox').classList.remove('show'); document.body.style.overflow = ''; }
 function prevPhoto(e) { if (e) e.stopPropagation(); lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length; document.getElementById('lbImg').src = lightboxPhotos[lightboxIndex]; updateLbCounter(); }
 function nextPhoto(e) { if (e) e.stopPropagation(); lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length; document.getElementById('lbImg').src = lightboxPhotos[lightboxIndex]; updateLbCounter(); }
 function updateLbCounter() { document.getElementById('lbCounter').textContent = (lightboxIndex + 1) + ' / ' + lightboxPhotos.length; }
-function toggleNetease() {
-  var body = document.getElementById('neteaseBody');
-  body.classList.toggle('collapsed');
-  document.querySelector('.netease-toggle').textContent = body.classList.contains('collapsed') ? '+' : '?';
-}
 document.addEventListener('keydown', function(e) {
   if (document.getElementById('lightbox').classList.contains('show')) {
     if (e.key === 'Escape') closeLightbox();
@@ -379,54 +345,37 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-
-/* ===== ÒôÀÖ²¥·ÅÆ÷ ===== */
+/* ===== Music Player ===== */
 function toggleMusicPanel() {
   var panel = document.getElementById('musicPanel');
+  if (!panel) return;
   panel.classList.toggle('show');
+  if (panel.classList.contains('show')) {
+    setTimeout(function() { playMelody(); }, 300);
+  }
 }
 
-function playTone() {
+function playMelody() {
   try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    var now = ctx.currentTime;
-    
-    // Play a simple sweet melody
+    var ac = new (window.AudioContext || window.webkitAudioContext)();
+    var now = ac.currentTime;
+    function n(freq, start, dur, vol) {
+      var osc = ac.createOscillator();
+      var gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol || 0.25, now + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+      osc.start(now + start); osc.stop(now + start + dur);
+    }
     var notes = [
-      {freq:523.25, time:0, dur:0.2},    // C5
-      {freq:587.33, time:0.2, dur:0.2},   // D5
-      {freq:659.25, time:0.4, dur:0.2},   // E5
-      {freq:783.99, time:0.6, dur:0.3},   // G5
-      {freq:659.25, time:0.9, dur:0.15},  // E5
-      {freq:783.99, time:1.05, dur:0.3},  // G5
-      {freq:1046.5, time:1.35, dur:0.4},  // C6
-      {freq:783.99, time:1.75, dur:0.15}, // G5
-      {freq:659.25, time:1.9, dur:0.15},  // E5
-      {freq:587.33, time:2.05, dur:0.15}, // D5
-      {freq:523.25, time:2.2, dur:0.4},   // C5
-      {freq:587.33, time:2.6, dur:0.15},  // D5
-      {freq:659.25, time:2.75, dur:0.15}, // E5
-      {freq:783.99, time:2.9, dur:0.3},   // G5
-      {freq:659.25, time:3.2, dur:0.3},   // E5
-      {freq:523.25, time:3.5, dur:0.6},   // C5
+      [523,0,0.2],[587,0.2,0.2],[659,0.4,0.2],[784,0.6,0.25],[659,0.9,0.12],[784,1.05,0.25],
+      [1047,1.35,0.35],[784,1.75,0.12],[659,1.9,0.12],[587,2.05,0.12],[523,2.2,0.35],
+      [587,2.6,0.12],[659,2.75,0.12],[784,2.9,0.25],[659,3.2,0.25],[523,3.5,0.5],
+      [659,4.1,0.2],[784,4.3,0.2],[880,4.5,0.3],[784,4.8,0.15],[659,4.95,0.15],
+      [587,5.1,0.3],[523,5.4,0.2],[587,5.6,0.2],[659,5.8,0.3],[784,6.1,0.6]
     ];
-    
-    notes.forEach(function(n) {
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = n.freq;
-      gain.gain.setValueAtTime(0.3, now + n.time);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + n.time + n.dur);
-      osc.start(now + n.time);
-      osc.stop(now + n.time + n.dur);
-    });
-    
-    document.getElementById('musicFloatIcon').textContent = '??';
-    setTimeout(function() { document.getElementById('musicFloatIcon').textContent = '??'; }, 4000);
-  } catch(e) {
-    alert('²¥·ÅÊ§°ÜÁË£¬ÊÔÊÔÉÏÃæµÄÍøÒ×ÔÆ²¥·ÅÆ÷ ??');
-  }
+    notes.forEach(function(x) { n(x[0], x[1], x[2], 0.2); });
+  } catch(e) {}
 }
