@@ -3,47 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我们的故事</title>
+<title>💕 我们的故事</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- 密码页 -->
-<div id="loginPage" class="login-page">
+<!-- ===== 密码页 ===== -->
+<div id="loginPage" class="login-overlay">
+  <canvas id="loginBg" class="login-bg"></canvas>
   <div class="login-box">
-    <div class="heart">💕</div>
-    <h1>我们的故事</h1>
-    <p class="login-hint">输入密码，进入我们的世界</p>
-    <input type="password" id="pwdInput" placeholder="请输入密码" class="pwd-input" autofocus>
-    <button onclick="checkPwd()" class="login-btn">进入</button>
+    <div class="heart-icon">💕</div>
+    <h1 class="login-title">我们的故事</h1>
+    <p class="login-sub">属于我们的小世界</p>
+    <div class="pwd-wrap">
+      <input type="password" id="pwdInput" placeholder="输入密码" class="pwd-input" autofocus>
+      <button onclick="checkPwd()" class="login-btn">进入 →</button>
+    </div>
     <p id="pwdError" class="pwd-error"></p>
   </div>
 </div>
 
-<!-- 主页面 -->
-<div id="mainPage" class="main-page" style="display:none">
-  <header class="header">
-    <div class="header-inner">
-      <h1 class="site-title">💕 我们的故事</h1>
-      <div class="header-controls">
-        <span id="currentMonth" class="current-month">全部回忆</span>
-        <button onclick="toggleFilter()" class="filter-btn" id="filterBtn">📅 筛选</button>
+<!-- ===== 主站 ===== -->
+<div id="mainApp" class="main-app" style="display:none">
+
+  <!-- 顶部导航 -->
+  <nav class="nav-bar" id="navBar">
+    <div class="nav-inner">
+      <div class="nav-brand">💕 我们的故事</div>
+      <div class="nav-links">
+        <button class="nav-btn active" data-page="home">🏠 首页</button>
+        <button class="nav-btn" data-page="memories">📖 回忆</button>
+        <button class="nav-btn" data-page="gallery">📷 相册</button>
+        <button class="nav-btn" data-page="about">💌 关于</button>
+      </div>
+      <button class="nav-toggle" onclick="toggleNav()">☰</button>
+    </div>
+  </nav>
+
+  <!-- ===== 首页 ===== -->
+  <section id="page-home" class="page active">
+    <div class="hero">
+      <canvas id="heartCanvas" class="heart-canvas"></canvas>
+      <div class="hero-content">
+        <div class="hero-emoji">💕</div>
+        <h1 class="hero-title">我们的故事</h1>
+        <div class="hero-counter">
+          <div class="counter-item">
+            <span class="counter-num" id="daysCount">0</span>
+            <span class="counter-label">在一起的每一天</span>
+          </div>
+        </div>
+        <p class="hero-quote" id="randomQuote">和你在一起的每一天，都是最好的礼物</p>
       </div>
     </div>
-    <!-- 筛选栏 -->
-    <div id="filterBar" class="filter-bar" style="display:none">
-      <button class="filter-tag active" onclick="filterAll()">全部</button>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-num" id="statMemories">0</span>
+        <span class="stat-label">条回忆</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="statPhotos">0</span>
+        <span class="stat-label">张照片</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="statChats">0</span>
+        <span class="stat-label">条消息</span>
+      </div>
     </div>
-  </header>
 
-  <main class="content" id="content">
-    <div class="timeline-line"></div>
-    <div id="cardsContainer" class="cards-container"></div>
-  </main>
+    <div class="section-title">
+      <h2>📸 最近瞬间</h2>
+      <button class="more-btn" onclick="switchPage('gallery')">查看全部 →</button>
+    </div>
+    <div class="recent-grid" id="recentGrid"></div>
 
-  <footer class="footer">
-    <p>💕 每一天都是最好的礼物</p>
-  </footer>
+    <div class="section-title">
+      <h2>📖 最新回忆</h2>
+      <button class="more-btn" onclick="switchPage('memories')">查看全部 →</button>
+    </div>
+    <div class="recent-cards" id="recentCards"></div>
+
+    <footer class="page-footer">
+      <p>💕 故事还在继续...</p>
+    </footer>
+  </section>
+
+  <!-- ===== 回忆页 ===== -->
+  <section id="page-memories" class="page">
+    <div class="page-header">
+      <h1>📖 我们的回忆</h1>
+      <div class="filter-bar" id="filterBarTop">
+        <button class="filter-btn active" onclick="filterMemories('all')">全部</button>
+      </div>
+    </div>
+    <div class="memories-container" id="memoriesContainer">
+      <div class="timeline-line"></div>
+    </div>
+  </section>
+
+  <!-- ===== 相册 ===== -->
+  <section id="page-gallery" class="page">
+    <div class="page-header">
+      <h1>📷 我们的相册</h1>
+      <p class="page-sub">点击照片可以放大查看</p>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </section>
+
+  <!-- ===== 关于页 ===== -->
+  <section id="page-about" class="page">
+    <div class="about-card">
+      <div class="about-icon">💕</div>
+      <h2>关于我们的小世界</h2>
+      <p class="about-text">
+        这里记录了我们在一起的点点滴滴<br>
+        每一张照片、每一段对话<br>
+        都是属于我们的独家记忆
+      </p>
+      <div class="about-stats">
+        <div><span class="about-num" id="aboutDays">0</span> 天</div>
+        <div><span class="about-num" id="aboutMemories">0</span> 篇回忆</div>
+        <div><span class="about-num" id="aboutPhotos">0</span> 张照片</div>
+      </div>
+      <p class="about-footer-text">💕 故事还在继续，未来还很长</p>
+    </div>
+  </section>
+
+  <!-- 回到顶部 -->
+  <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+</div>
+
+<!-- ===== 图片预览弹窗 ===== -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-prev" onclick="prevPhoto()">‹</button>
+  <img id="lightboxImg" class="lightbox-img" src="" alt="">
+  <button class="lightbox-next" onclick="nextPhoto()">›</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
 </div>
 
 <script src="js/data.js"></script>
