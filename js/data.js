@@ -14,7 +14,19 @@ const memories = [
     date: '2026-06-02',
     title: '我们的照片书 📖',
     text: '把我们的回忆装进照片书里，每一页都是故事 💕',
-    photos: ['photo_01.jpg', 'photo_02.jpg']
+    photos: ['photo_01.jpg', 'photo_02.jpg', 'photo_03.jpg', 'photo_04.jpg', 'photo_05.jpg', 'photo_06.jpg']
+  },
+  {
+    date: '2026-06-02',
+    title: '更多美好瞬间 ✨',
+    text: '和你在一起的每一天都值得被记录下来 💕',
+    photos: ['photo_07.jpg', 'photo_08.jpg', 'photo_09.jpg', 'photo_10.jpg', 'photo_11.jpg', 'photo_12.jpg']
+  },
+  {
+    date: '2026-06-02',
+    title: '未完待续 💝',
+    text: '故事还在继续，未来还有更多美好等着我们 💕',
+    photos: ['photo_13.jpg', 'photo_14.jpg', 'photo_15.jpg']
   },
   {
     date: '2026-06-01',
