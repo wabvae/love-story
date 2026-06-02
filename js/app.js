@@ -1,4 +1,4 @@
-﻿/* ===== Password ===== */
+/* ===== Password ===== */
 function checkPwd() {
   var input = document.getElementById('pwdInput').value;
   if (input === SITE_PASSWORD) {
@@ -9,7 +9,7 @@ function checkPwd() {
     setTimeout(function() { document.getElementById('loader').style.display = 'none'; }, 800);
     initApp();
   } else {
-    document.getElementById('pwdError').textContent = 'Password is wrong, try again';
+    document.getElementById('pwdError').textContent = 'Wrong password, try again';
     document.getElementById('pwdInput').value = '';
     document.getElementById('pwdInput').focus();
   }
@@ -20,11 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.key === 'Enter') checkPwd();
   });
   initLoginParticles();
-  setTimeout(function() {
-    document.getElementById('loader').classList.add('hide');
-  }, 2000);
+  setTimeout(function() { document.getElementById('loader').classList.add('hide'); }, 2000);
 });
 
+/* ===== Particles ===== */
 function initLoginParticles() {
   var c = document.getElementById('loginParticles');
   if (!c) return;
@@ -32,27 +31,19 @@ function initLoginParticles() {
   c.width = window.innerWidth;
   c.height = window.innerHeight;
   var particles = [];
-  for (var i = 0; i < 60; i++) {
-    particles.push({
-      x: Math.random() * c.width, y: Math.random() * c.height,
-      size: Math.random() * 6 + 2,
-      speedX: (Math.random() - 0.5) * 0.5,
-      speedY: (Math.random() - 0.5) * 0.5,
-      alpha: Math.random() * 0.5 + 0.1
-    });
-  }
+  for (var i = 0; i < 60; i++) particles.push({
+    x: Math.random() * c.width, y: Math.random() * c.height,
+    size: Math.random() * 6 + 2, speedX: (Math.random() - 0.5) * 0.5,
+    speedY: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.1
+  });
   function animate() {
     ctx.clearRect(0, 0, c.width, c.height);
     particles.forEach(function(p) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(233,30,99,' + p.alpha + ')';
-      ctx.fill();
-      p.x += p.speedX; p.y += p.speedY;
-      if (p.x < 0) p.x = c.width;
-      if (p.x > c.width) p.x = 0;
-      if (p.y < 0) p.y = c.height;
-      if (p.y > c.height) p.y = 0;
+      ctx.fill(); p.x += p.speedX; p.y += p.speedY;
+      if (p.x < 0) p.x = c.width; if (p.x > c.width) p.x = 0;
+      if (p.y < 0) p.y = c.height; if (p.y > c.height) p.y = 0;
     });
     requestAnimationFrame(animate);
   }
@@ -60,6 +51,7 @@ function initLoginParticles() {
   window.addEventListener('resize', function() { c.width = window.innerWidth; c.height = window.innerHeight; });
 }
 
+/* ===== App ===== */
 var allPhotos = [];
 var lightboxPhotos = [];
 var lightboxIndex = 0;
@@ -87,7 +79,7 @@ function getLoveDays() {
 
 function formatDate(d) {
   var p = d.split('-');
-  var weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var dt = new Date(p[0], p[1]-1, p[2]);
   return p[0] + '-' + p[1] + '-' + p[2] + ' ' + weekdays[dt.getDay()];
 }
@@ -182,7 +174,7 @@ function renderTimeline(items) {
   var tl = document.getElementById('timeline');
   if (!tl) return;
   tl.innerHTML = '';
-  if (!items.length) { tl.innerHTML = '<div style="text-align:center;padding:40px;color:' + getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') + '">No memories yet</div>'; return; }
+  if (!items.length) { tl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">No memories yet</div>'; return; }
   items.forEach(function(m) {
     var card = document.createElement('div');
     card.className = 'timeline-card';
@@ -230,8 +222,7 @@ function buildFilters() {
   Object.keys(months).sort().reverse().forEach(function(ym) {
     var btn = document.createElement('button');
     btn.className = 'filter-tab';
-    btn.textContent = ym;
-    btn.dataset.ym = ym;
+    btn.textContent = ym; btn.dataset.ym = ym;
     btn.onclick = function() { filterBy(ym); };
     bar.appendChild(btn);
   });
@@ -245,6 +236,7 @@ function filterBy(filter) {
   document.getElementById('timeline').scrollIntoView({behavior:'smooth'});
 }
 
+/* ===== Letters ===== */
 function postLetter() {
   var input = document.getElementById('letterInput');
   var nameInput = document.getElementById('letterName');
@@ -254,8 +246,7 @@ function postLetter() {
   var letters = JSON.parse(localStorage.getItem('loveLetters') || '[]');
   letters.unshift({ name: name, text: text, time: new Date().toISOString() });
   localStorage.setItem('loveLetters', JSON.stringify(letters));
-  input.value = '';
-  renderLetters();
+  input.value = ''; renderLetters();
 }
 
 function renderLetters() {
@@ -267,13 +258,14 @@ function renderLetters() {
   letters.forEach(function(l) {
     var el = document.createElement('div');
     el.className = 'letter-item';
-    var time = new Date(l.time);
-    var ts = time.getFullYear() + '-' + (time.getMonth()+1).toString().padStart(2,'0') + '-' + time.getDate().toString().padStart(2,'0');
-    el.innerHTML = '<div class="letter-header"><span>' + (l.name === 'He' ? '💙' : '💕') + '</span><span class="letter-author">' + escHtml(l.name) + '</span><span class="letter-time">' + ts + '</span></div><div class="letter-content">' + escHtml(l.text) + '</div>';
+    var ts = new Date(l.time);
+    var t = ts.getFullYear() + '-' + (ts.getMonth()+1).toString().padStart(2,'0') + '-' + ts.getDate().toString().padStart(2,'0');
+    el.innerHTML = '<div class="letter-header"><span>' + (l.name==='He'?'💙':'💕') + '</span><span class="letter-author">' + escHtml(l.name) + '</span><span class="letter-time">' + t + '</span></div><div class="letter-content">' + escHtml(l.text) + '</div>';
     wall.appendChild(el);
   });
 }
 
+/* ===== Pages ===== */
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
@@ -286,6 +278,7 @@ function switchPage(page) {
 
 function toggleMenu() { document.getElementById('navMenu').classList.toggle('open'); }
 
+/* ===== Hero Canvas ===== */
 function initHeroCanvas() {
   var c = document.getElementById('heroCanvas');
   if (!c) return;
@@ -293,21 +286,18 @@ function initHeroCanvas() {
   function resize() { c.width = c.parentElement.offsetWidth; c.height = c.parentElement.offsetHeight; }
   resize(); window.addEventListener('resize', resize);
   var particles = [];
-  for (var i = 0; i < 80; i++) {
-    particles.push({
-      x: Math.random() * c.width, y: Math.random() * c.height,
-      size: Math.random() * 3 + 1, alpha: Math.random() * 0.5 + 0.1,
-      speedX: (Math.random() - 0.5) * 0.3, speedY: (Math.random() - 0.5) * 0.3,
-      color: Math.random() > 0.5 ? '255,107,157' : '156,39,176'
-    });
-  }
+  for (var i = 0; i < 80; i++) particles.push({
+    x: Math.random() * c.width, y: Math.random() * c.height,
+    size: Math.random() * 3 + 1, alpha: Math.random() * 0.5 + 0.1,
+    speedX: (Math.random() - 0.5) * 0.3, speedY: (Math.random() - 0.5) * 0.3,
+    color: Math.random() > 0.5 ? '255,107,157' : '156,39,176'
+  });
   function anim() {
     ctx.clearRect(0,0,c.width,c.height);
     particles.forEach(function(p) {
       ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
       ctx.fillStyle = 'rgba(' + p.color + ',' + p.alpha + ')';
-      ctx.fill();
-      p.x += p.speedX; p.y += p.speedY;
+      ctx.fill(); p.x += p.speedX; p.y += p.speedY;
       if (p.x < 0) p.x = c.width; if (p.x > c.width) p.x = 0;
       if (p.y < 0) p.y = c.height; if (p.y > c.height) p.y = 0;
     });
@@ -328,49 +318,25 @@ function initNavbar() {
   window.addEventListener('scroll', function() {
     var nav = document.getElementById('navbar');
     if (!nav) return;
-    if (window.scrollY > 100) {
-      nav.classList.toggle('hidden', window.scrollY > lastY && window.scrollY > 200);
-    } else {
-      nav.classList.remove('hidden');
-    }
+    if (window.scrollY > 100) nav.classList.toggle('hidden', window.scrollY > lastY && window.scrollY > 200);
+    else nav.classList.remove('hidden');
     lastY = window.scrollY;
   });
 }
 
+/* ===== Lightbox ===== */
 function openLightbox(src, allSrcs) {
   document.getElementById('lbImg').src = src;
   lightboxPhotos = allSrcs || [src];
   lightboxIndex = lightboxPhotos.indexOf(src);
   if (lightboxIndex < 0) lightboxIndex = 0;
   document.getElementById('lightbox').classList.add('show');
-  updateLbCounter();
-  document.body.style.overflow = 'hidden';
+  updateLbCounter(); document.body.style.overflow = 'hidden';
 }
-
-function closeLightbox(e) {
-  if (e && e.target !== e.currentTarget) return;
-  document.getElementById('lightbox').classList.remove('show');
-  document.body.style.overflow = '';
-}
-
-function prevPhoto(e) {
-  if (e) e.stopPropagation();
-  lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
-  document.getElementById('lbImg').src = lightboxPhotos[lightboxIndex];
-  updateLbCounter();
-}
-
-function nextPhoto(e) {
-  if (e) e.stopPropagation();
-  lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
-  document.getElementById('lbImg').src = lightboxPhotos[lightboxIndex];
-  updateLbCounter();
-}
-
-function updateLbCounter() {
-  document.getElementById('lbCounter').textContent = (lightboxIndex + 1) + ' / ' + lightboxPhotos.length;
-}
-
+function closeLightbox(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('lightbox').classList.remove('show'); document.body.style.overflow = ''; }
+function prevPhoto(e) { if (e) e.stopPropagation(); lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length; document.getElementById('lbImg').src = lightboxPhotos[lightboxIndex]; updateLbCounter(); }
+function nextPhoto(e) { if (e) e.stopPropagation(); lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length; document.getElementById('lbImg').src = lightboxPhotos[lightboxIndex]; updateLbCounter(); }
+function updateLbCounter() { document.getElementById('lbCounter').textContent = (lightboxIndex + 1) + ' / ' + lightboxPhotos.length; }
 document.addEventListener('keydown', function(e) {
   if (document.getElementById('lightbox').classList.contains('show')) {
     if (e.key === 'Escape') closeLightbox();
@@ -393,101 +359,23 @@ function playMelody() {
   try {
     var ac = new (window.AudioContext || window.webkitAudioContext)();
     var now = ac.currentTime;
-    
-    // "I Really Like You" inspired melody - main hook
-    // Using a pleasant sine wave + harmonics
-    function note(freq, start, dur, vol) {
+    function n(freq, start, dur, vol) {
       var osc = ac.createOscillator();
       var gain = ac.createGain();
-      osc.connect(gain);
-      gain.connect(ac.destination);
+      osc.connect(gain); gain.connect(ac.destination);
       osc.type = 'triangle';
       osc.frequency.value = freq;
       gain.gain.setValueAtTime(vol || 0.25, now + start);
       gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
-      osc.start(now + start);
-      osc.stop(now + start + dur);
-      
-      // Add a soft harmonic
-      var osc2 = ac.createOscillator();
-      var gain2 = ac.createGain();
-      osc2.connect(gain2);
-      gain2.connect(ac.destination);
-      osc2.type = 'sine';
-      osc2.frequency.value = freq * 2;
-      gain2.gain.setValueAtTime((vol||0.25)*0.15, now + start);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
-      osc2.start(now + start);
-      osc2.stop(now + start + dur);
+      osc.start(now + start); osc.stop(now + start + dur);
     }
-    
-    // Main melody 
-    var melody = [
-      [523, 0, 0.18], [587, 0.2, 0.18], [659, 0.4, 0.18],
-      [784, 0.6, 0.25], [659, 0.9, 0.12], [784, 1.05, 0.25],
-      [1047, 1.35, 0.35], [784, 1.75, 0.12], [659, 1.9, 0.12],
-      [587, 2.05, 0.12], [523, 2.2, 0.35],
-      [587, 2.6, 0.12], [659, 2.75, 0.12], [784, 2.9, 0.25],
-      [659, 3.2, 0.25], [523, 3.5, 0.5],
-      [659, 4.1, 0.2], [784, 4.3, 0.2], [880, 4.5, 0.3],
-      [784, 4.8, 0.15], [659, 4.95, 0.15], [587, 5.1, 0.3],
-      [523, 5.4, 0.2], [587, 5.6, 0.2], [659, 5.8, 0.3],
-      [784, 6.1, 0.6]
+    var notes = [
+      [523,0,0.2],[587,0.2,0.2],[659,0.4,0.2],[784,0.6,0.25],[659,0.9,0.12],[784,1.05,0.25],
+      [1047,1.35,0.35],[784,1.75,0.12],[659,1.9,0.12],[587,2.05,0.12],[523,2.2,0.35],
+      [587,2.6,0.12],[659,2.75,0.12],[784,2.9,0.25],[659,3.2,0.25],[523,3.5,0.5],
+      [659,4.1,0.2],[784,4.3,0.2],[880,4.5,0.3],[784,4.8,0.15],[659,4.95,0.15],
+      [587,5.1,0.3],[523,5.4,0.2],[587,5.6,0.2],[659,5.8,0.3],[784,6.1,0.6]
     ];
-    
-    melody.forEach(function(n) { note(n[0], n[1], n[2], 0.2); });
-    
-    // Add bass notes
-    var bass = [
-      [262, 0, 0.8], [330, 0.8, 0.8], [392, 1.6, 0.8],
-      [330, 2.4, 0.8], [262, 3.2, 1.0], [330, 4.2, 0.8],
-      [392, 5.0, 0.8], [262, 5.8, 1.2]
-    ];
-    bass.forEach(function(n) {
-      var osc = ac.createOscillator();
-      var gain = ac.createGain();
-      osc.connect(gain);
-      gain.connect(ac.destination);
-      osc.type = 'sine';
-      osc.frequency.value = n[0];
-      gain.gain.setValueAtTime(0.08, now + n[1]);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + n[1] + n[2]);
-      osc.start(now + n[1]);
-      osc.stop(now + n[1] + n[2]);
-    });
-    
-    var icon = document.getElementById('musicFloatIcon');
-    if (icon) { icon.textContent = '🎶'; }
-    setTimeout(function() {
-      if (icon) icon.textContent = '🎵';
-    }, 7000);
-    
-  } catch(e) {
-    console.log('Audio not available');
-  }
-},{freq:587.33, t:0.2, d:0.2},{freq:659.25, t:0.4, d:0.2},
-      {freq:783.99, t:0.6, d:0.3},{freq:659.25, t:0.9, d:0.15},{freq:783.99, t:1.05, d:0.3},
-      {freq:1046.5, t:1.35, d:0.4},{freq:783.99, t:1.75, d:0.15},{freq:659.25, t:1.9, d:0.15},
-      {freq:587.33, t:2.05, d:0.15},{freq:523.25, t:2.2, d:0.4},{freq:587.33, t:2.6, d:0.15},
-      {freq:659.25, t:2.75, d:0.15},{freq:783.99, t:2.9, d:0.3},{freq:659.25, t:3.2, d:0.3},
-      {freq:523.25, t:3.5, d:0.6}
-    ];
-    notes.forEach(function(n) {
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = n.freq;
-      gain.gain.setValueAtTime(0.3, now + n.t);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + n.t + n.d);
-      osc.start(now + n.t);
-      osc.stop(now + n.t + n.d);
-    });
-    var icon = document.getElementById('musicFloatIcon');
-    if (icon) { icon.textContent = '🎶'; setTimeout(function() { icon.textContent = '🎵'; }, 4000); }
-  } catch(e) {
-    alert('Cannot play audio, try the NetEase player instead');
-  }
+    notes.forEach(function(x) { n(x[0], x[1], x[2], 0.2); });
+  } catch(e) {}
 }
-
