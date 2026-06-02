@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (e.key === 'Enter') checkPwd();
     });
   }
-  // Login page background hearts
   drawLoginBg();
 });
 
@@ -45,10 +44,9 @@ function drawLoginBg() {
   function draw() {
     ctx.clearRect(0, 0, c.width, c.height);
     hearts.forEach(function(h) {
-      ctx.beginPath();
+      ctx.globalAlpha = h.alpha;
       ctx.font = h.r * 3 + 'px sans-serif';
       ctx.textAlign = 'center';
-      ctx.globalAlpha = h.alpha;
       ctx.fillText('💕', h.x, h.y);
       h.x += h.dx;
       h.y += h.dy;
@@ -70,13 +68,22 @@ function initApp() {
   renderHome();
   renderMemories(memories);
   renderGallery();
-  renderAbout();
+  renderMilestones();
   buildFilters();
   setupHeartCanvas();
   setupScroll();
 }
 
-/* ===== 收集所有照片 ===== */
+/* ===== 天数计算 ===== */
+function getLoveDays() {
+  var start = new Date(LOVE_START_DATE);
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  start.setHours(0,0,0,0);
+  return Math.floor((today - start) / (1000 * 60 * 60 * 24));
+}
+
+/* ===== 收集照片 ===== */
 function collectAllPhotos() {
   allPhotos = [];
   memories.forEach(function(m) {
@@ -88,14 +95,9 @@ function collectAllPhotos() {
 
 /* ===== 首页 ===== */
 function renderHome() {
-  // 天数计算（以第一条回忆为准）
-  if (memories.length > 0) {
-    var first = new Date(memories[memories.length-1].date);
-    var today = new Date();
-    var days = Math.floor((today - first) / (1000*60*60*24)) + 1;
-    document.getElementById('daysCount').textContent = days;
-    document.getElementById('aboutDays').textContent = days;
-  }
+  var days = getLoveDays();
+  document.getElementById('daysCount').textContent = days + ' 天 💕';
+  document.getElementById('aboutDays').textContent = days + '天';
 
   // 统计
   var totalPhotos = allPhotos.length;
@@ -110,16 +112,10 @@ function renderHome() {
   document.getElementById('aboutPhotos').textContent = totalPhotos;
 
   // 随机语录
-  var quotes = [
-    '和你在一起的每一天，都是最好的礼物 💕',
-    '世界很大，但我的世界里有你就够了',
-    '最好的爱情，是一起变成更好的人',
-    '你是我平淡生活里的星辰 ✨',
-    '爱是细节，是日常，是你在我身边',
-    '有你在的地方，就是家 🏠',
-    '谢谢你，成为我故事里的女主角 💝'
-  ];
-  document.getElementById('randomQuote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+  document.getElementById('randomQuote').textContent = loveQuotes[Math.floor(Math.random() * loveQuotes.length)];
+
+  // 统计标签改成"在一起第XX天"
+  document.querySelector('.counter-label').textContent = '从 2025.12.6 开始';
 
   // 最近照片
   var recentGrid = document.getElementById('recentGrid');
@@ -129,26 +125,80 @@ function renderHome() {
     var img = document.createElement('img');
     img.src = p.src;
     img.loading = 'lazy';
-    img.onclick = function() { openLightbox(p.src, allPhotos); };
+    img.onclick = function() { openLightbox(p.src, allPhotos.map(function(x){return x.src})); };
     recentGrid.appendChild(img);
   });
 
   // 最新回忆
   var cards = document.getElementById('recentCards');
-  var latest = memories.slice(0, 4);
+  var latest = memories.slice(0, 5);
   cards.innerHTML = '';
-  var emojis = ['💕', '📸', '🎉', '💌', '🌟', '🎈', '💝', '✨'];
-  latest.forEach(function(m, i) {
+  var emojis = ['💕', '📸', '🎉', '💌', '🌟', '🎈'];
+  latest.forEach(function(m) {
     var card = document.createElement('div');
     card.className = 'recent-card';
     card.onclick = function() { switchPage('memories'); };
     var text = m.text || (m.chats ? m.chats[0].text.substring(0, 30) + '...' : '');
-    card.innerHTML = '<div class="recent-card-emoji">' + emojis[i % emojis.length] + '</div>' +
+    var emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    card.innerHTML = '<div class="recent-card-emoji">' + emoji + '</div>' +
       '<div class="recent-card-content"><div class="recent-card-title">' + (m.title || '我们的回忆') + '</div>' +
       '<div class="recent-card-date">' + formatDate(m.date) + '</div>' +
-      '<div class="recent-card-text">' + text + '</div></div>';
+      '<div class="recent-card-text">' + escapeHtml(text) + '</div></div>';
     cards.appendChild(card);
   });
+}
+
+/* ===== 里程碑 ===== */
+function renderMilestones() {
+  var container = document.getElementById('page-home');
+  var section = document.createElement('div');
+  section.className = 'milestones-section';
+  section.innerHTML = '<div class="section-title"><h2>🏆 我们的里程碑</h2></div><div class="milestones-container"></div>';
+  
+  // 插入在相册后面
+  var recentGrid = document.getElementById('recentGrid');
+  if (recentGrid) recentGrid.parentNode.insertBefore(section, recentGrid.nextSibling);
+  
+  var grid = section.querySelector('.milestones-container');
+  var days = getLoveDays();
+  
+  var allMilestones = [
+    { label: '在一起', date: LOVE_START_DATE, icon: '💕' },
+    { label: '一月', date: addMonths(LOVE_START_DATE, 1), icon: '🎉' },
+    { label: '100天', date: addDays(LOVE_START_DATE, 100), icon: '💯' },
+    { label: '半年', date: addMonths(LOVE_START_DATE, 6), icon: '🎊' },
+    { label: '一年', date: addMonths(LOVE_START_DATE, 12), icon: '🎂' },
+    { label: '500天', date: addDays(LOVE_START_DATE, 500), icon: '🌟' }
+  ];
+  
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  
+  allMilestones.forEach(function(m) {
+    var d = new Date(m.date);
+    d.setHours(0,0,0,0);
+    var passed = (today - d) >= 0;
+    var remaining = Math.abs(Math.floor((d - today) / (1000*60*60*24)));
+    
+    var item = document.createElement('div');
+    item.className = 'milestone-item' + (passed ? ' passed' : ' upcoming');
+    item.innerHTML = '<div class="milestone-icon">' + m.icon + '</div>' +
+      '<div class="milestone-info"><div class="milestone-label">' + m.label + '</div>' +
+      '<div class="milestone-date">' + formatDateRaw(m.date) + '</div></div>' +
+      '<div class="milestone-status">' + (passed ? '✅ 已度过' : '⏳ 还有' + remaining + '天') + '</div>';
+    grid.appendChild(item);
+  });
+}
+
+function addDays(dateStr, days) {
+  var d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().substring(0, 10);
+}
+function addMonths(dateStr, months) {
+  var d = new Date(dateStr);
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString().substring(0, 10);
 }
 
 /* ===== 回忆页 ===== */
@@ -165,13 +215,9 @@ function renderMemories(items) {
     var card = document.createElement('div');
     card.className = 'memory-card';
     
-    // Date
     card.innerHTML += '<div class="memory-date">' + formatDate(m.date) + '</div>';
-    
-    // Title
     if (m.title) card.innerHTML += '<div class="memory-title">' + m.title + '</div>';
     
-    // Chats
     if (m.chats) {
       m.chats.forEach(function(chat) {
         var cls = (chat.name === '他' || chat.name === '我') ? 'his' : 'hers';
@@ -180,19 +226,18 @@ function renderMemories(items) {
       });
     }
     
-    // Text
     if (m.text) card.innerHTML += '<div class="memory-text">' + escapeHtml(m.text) + '</div>';
     
-    // Photos
     if (m.photos && m.photos.length > 0) {
       var cls = 'memory-photos';
       if (m.photos.length === 1) cls += ' single';
       else if (m.photos.length === 2) cls += ' double';
       else cls += ' multiple';
       
+      var photoSrcs = JSON.stringify(m.photos.map(function(x){return 'photos/'+x}));
       var photosHtml = '<div class="' + cls + '">';
       m.photos.forEach(function(p) {
-        photosHtml += '<img src="photos/' + p + '" loading="lazy" onclick="event.stopPropagation();openLightbox(\'photos/' + p + '\', ' + JSON.stringify(m.photos.map(function(x){return 'photos/'+x})) + ')">';
+        photosHtml += '<img src="photos/' + p + '" loading="lazy" onclick="event.stopPropagation();openLightbox(\'photos/' + p + '\', ' + photoSrcs + ')">';
       });
       photosHtml += '</div>';
       card.innerHTML += photosHtml;
@@ -213,11 +258,6 @@ function renderGallery() {
     img.onclick = function() { openLightbox(p.src, allPhotos.map(function(x){return x.src})); };
     grid.appendChild(img);
   });
-}
-
-/* ===== 关于页 ===== */
-function renderAbout() {
-  // Stats already set in renderHome
 }
 
 /* ===== 筛选 ===== */
@@ -242,7 +282,6 @@ function filterMemories(filter) {
   currentFilter = filter;
   document.querySelectorAll('.filter-bar .filter-btn').forEach(function(b) { b.classList.remove('active'); });
   event.target.classList.add('active');
-  
   var items = (filter === 'all') ? memories : memories.filter(function(m) { return m.date.substring(0, 7) === filter; });
   renderMemories(items);
 }
@@ -254,12 +293,9 @@ function switchPage(page) {
   document.getElementById('page-' + page).classList.add('active');
   document.querySelector('.nav-btn[data-page="' + page + '"]').classList.add('active');
   window.scrollTo({top: 0, behavior: 'smooth'});
-  
-  // 关闭移动端导航
   document.querySelector('.nav-links').classList.remove('open');
 }
 
-// 导航按钮事件
 document.addEventListener('click', function(e) {
   var btn = e.target.closest('.nav-btn');
   if (btn) {
@@ -272,15 +308,14 @@ function toggleNav() {
   document.querySelector('.nav-links').classList.toggle('open');
 }
 
-/* ===== 首页动态心形 ===== */
+/* ===== 爱心粒子动效 ===== */
 function setupHeartCanvas() {
   var c = document.getElementById('heartCanvas');
   if (!c) return;
   var ctx = c.getContext('2d');
   function resize() {
-    var hero = c.parentElement;
-    c.width = hero.offsetWidth;
-    c.height = hero.offsetHeight;
+    c.width = c.parentElement.offsetWidth;
+    c.height = c.parentElement.offsetHeight;
   }
   resize();
   window.addEventListener('resize', resize);
@@ -290,39 +325,35 @@ function setupHeartCanvas() {
     particles.push({
       x: Math.random() * c.width,
       y: Math.random() * c.height,
-      size: Math.random() * 12 + 6,
+      size: Math.random() * 14 + 8,
       speedY: -Math.random() * 1 - 0.3,
       speedX: (Math.random() - 0.5) * 0.5,
-      alpha: Math.random() * 0.5 + 0.2,
-      emoji: Math.random() > 0.5 ? '💕' : '✨'
+      alpha: Math.random() * 0.4 + 0.2
     });
   }
+  var emojis = ['💕', '✨', '🌸', '💝'];
   
   function animate() {
     ctx.clearRect(0, 0, c.width, c.height);
-    particles.forEach(function(p) {
+    particles.forEach(function(p, idx) {
       ctx.globalAlpha = p.alpha;
       ctx.font = p.size + 'px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(p.emoji, p.x, p.y);
+      ctx.fillText(emojis[idx % emojis.length], p.x, p.y);
       p.x += p.speedX;
       p.y += p.speedY;
-      if (p.y < -20) {
-        p.y = c.height + 20;
-        p.x = Math.random() * c.width;
-      }
+      if (p.y < -20) { p.y = c.height + 20; p.x = Math.random() * c.width; }
     });
     requestAnimationFrame(animate);
   }
   animate();
 }
 
-/* ===== 滚动监听 ===== */
 function setupScroll() {
   window.addEventListener('scroll', function() {
     var btn = document.getElementById('backTop');
-    if (window.scrollY > 400) { btn.classList.add('show'); }
-    else { btn.classList.remove('show'); }
+    if (window.scrollY > 400) btn.classList.add('show');
+    else btn.classList.remove('show');
   });
 }
 
@@ -372,6 +403,11 @@ function formatDate(dateStr) {
   var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   var d = new Date(parts[0], parts[1]-1, parts[2]);
   return parts[0] + '年' + parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 星期' + weekdays[d.getDay()];
+}
+
+function formatDateRaw(dateStr) {
+  var parts = dateStr.split('-');
+  return parts[0] + '.' + parseInt(parts[1]) + '.' + parseInt(parts[2]);
 }
 
 function escapeHtml(text) {
