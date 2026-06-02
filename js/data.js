@@ -11,6 +11,12 @@ const SITE_PASSWORD = '5201314';
 
 const memories = [
   {
+    date: '2026-06-02',
+    title: '我们的照片书 📖',
+    text: '把我们的回忆装进照片书里，每一页都是故事 💕',
+    photos: ['photo_01.jpg', 'photo_02.jpg']
+  },
+  {
     date: '2026-06-01',
     title: '六一快乐 🎈',
     chats: [
