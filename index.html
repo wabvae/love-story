@@ -32,7 +32,6 @@
 <!-- 主应用 -->
 <div id="app" class="app" style="display:none">
 
-  <!-- 顶部导航 -->
   <nav class="navbar" id="navbar">
     <div class="nav-container">
       <a class="nav-logo" onclick="switchPage('home')">💕 我们的故事</a>
@@ -46,7 +45,6 @@
     </div>
   </nav>
 
-  <!-- ===== 首页 ===== -->
   <section id="page-home" class="page active">
     <div class="hero-section">
       <canvas id="heroCanvas"></canvas>
@@ -67,26 +65,25 @@
     </div>
 
     <div id="homeContent">
-      <!-- 统计 -->
       <section class="section stats-section">
         <div class="container">
           <div class="stats-grid">
-            <div class="stat-card glass">
+            <div class="stat-card">
               <div class="stat-icon">📖</div>
               <div class="stat-num" id="statMemories">0</div>
               <div class="stat-label">篇回忆</div>
             </div>
-            <div class="stat-card glass">
+            <div class="stat-card">
               <div class="stat-icon">📷</div>
               <div class="stat-num" id="statPhotos">0</div>
               <div class="stat-label">张照片</div>
             </div>
-            <div class="stat-card glass">
+            <div class="stat-card">
               <div class="stat-icon">💬</div>
               <div class="stat-num" id="statMessages">0</div>
               <div class="stat-label">条消息</div>
             </div>
-            <div class="stat-card glass">
+            <div class="stat-card">
               <div class="stat-icon">🎯</div>
               <div class="stat-num" id="statDays">0</div>
               <div class="stat-label">天纪念日</div>
@@ -95,7 +92,6 @@
         </div>
       </section>
 
-      <!-- 里程碑 -->
       <section class="section">
         <div class="container">
           <h2 class="section-title">🏆 里程碑</h2>
@@ -105,7 +101,6 @@
         </div>
       </section>
 
-      <!-- 最近照片 -->
       <section class="section">
         <div class="container">
           <div class="section-header">
@@ -116,7 +111,6 @@
         </div>
       </section>
 
-      <!-- 最新回忆 -->
       <section class="section">
         <div class="container">
           <div class="section-header">
@@ -129,7 +123,6 @@
     </div>
   </section>
 
-  <!-- ===== 回忆页 ===== -->
   <section id="page-story" class="page">
     <div class="page-hero-sm">
       <h1>📖 我们的回忆</h1>
@@ -143,7 +136,6 @@
     </div>
   </section>
 
-  <!-- ===== 相册页 ===== -->
   <section id="page-gallery" class="page">
     <div class="page-hero-sm">
       <h1>📷 我们的相册</h1>
@@ -154,14 +146,13 @@
     </div>
   </section>
 
-  <!-- ===== 留言板 ===== -->
   <section id="page-letter" class="page">
     <div class="page-hero-sm">
       <h1>💌 留言板</h1>
       <p>想说的话，写在这里 💕</p>
     </div>
     <div class="container">
-      <div class="letter-form glass">
+      <div class="letter-form">
         <div class="letter-avatar">💕</div>
         <textarea id="letterInput" placeholder="写下你想对 TA 说的话..." rows="3"></textarea>
         <div class="letter-actions">
@@ -175,7 +166,6 @@
     </div>
   </section>
 
-  <!-- ===== 页脚 ===== -->
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -187,23 +177,30 @@
   </footer>
 </div>
 
-<!-- ===== 网易云音乐播放器 ===== -->
-<div class="netease-player" id="musicPlayer">
-  <div class="netease-header" onclick="toggleNetease()">
-    <span class="netease-icon">🎵</span>
-    <span class="netease-title">I Really Like You</span>
-    <span class="netease-artist">Carly Rae Jepsen</span>
-    <button class="netease-toggle" id="neteaseToggle" onclick="event.stopPropagation();toggleNetease()">−</button>
+<!-- ===== 音乐播放器（右下角浮动） ===== -->
+<div class="music-float" id="musicFloat">
+  <div class="music-float-handle" onclick="toggleMusicPanel()">
+    <span class="music-float-icon" id="musicFloatIcon">🎵</span>
+    <span class="music-float-title">I Really Like You</span>
   </div>
-  <div class="netease-body" id="neteaseBody">
-    <iframe frameborder="0" 
-      src="https://music.163.com/outchain/player?type=2&id=30841076&auto=1&height=66"
-      style="width:100%;height:66px;">
-    </iframe>
+  <div class="music-float-panel" id="musicPanel">
+    <div class="music-panel-titlebar">
+      <span>💕 我们的歌</span>
+      <button class="music-panel-x" onclick="toggleMusicPanel()">✕</button>
+    </div>
+    <div class="music-panel-body">
+      <iframe frameborder="no" marginwidth="0" marginheight="0" width=240 height=90
+        src="//music.163.com/outchain/player?type=2&id=30841076&auto=0&height=90">
+      </iframe>
+    </div>
+    <p class="music-panel-tip">👆 点击上面播放器的 ▶️ 按钮听歌</p>
+    <button class="music-backup-btn" onclick="playTone()">
+      🎶 备选方案：点我播放提示音
+    </button>
   </div>
 </div>
 
-<!-- ===== 图片预览 ===== -->
+<!-- ===== Lightbox ===== -->
 <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
   <span class="lb-close" onclick="closeLightbox()">✕</span>
   <span class="lb-prev" onclick="prevPhoto(event)">‹</span>
@@ -212,7 +209,6 @@
   <div class="lb-counter" id="lbCounter"></div>
 </div>
 
-<!-- ===== 回到顶部 ===== -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <script src="js/data.js"></script>

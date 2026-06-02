@@ -379,3 +379,54 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+
+/* ===== 音乐播放器 ===== */
+function toggleMusicPanel() {
+  var panel = document.getElementById('musicPanel');
+  panel.classList.toggle('show');
+}
+
+function playTone() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var now = ctx.currentTime;
+    
+    // Play a simple sweet melody
+    var notes = [
+      {freq:523.25, time:0, dur:0.2},    // C5
+      {freq:587.33, time:0.2, dur:0.2},   // D5
+      {freq:659.25, time:0.4, dur:0.2},   // E5
+      {freq:783.99, time:0.6, dur:0.3},   // G5
+      {freq:659.25, time:0.9, dur:0.15},  // E5
+      {freq:783.99, time:1.05, dur:0.3},  // G5
+      {freq:1046.5, time:1.35, dur:0.4},  // C6
+      {freq:783.99, time:1.75, dur:0.15}, // G5
+      {freq:659.25, time:1.9, dur:0.15},  // E5
+      {freq:587.33, time:2.05, dur:0.15}, // D5
+      {freq:523.25, time:2.2, dur:0.4},   // C5
+      {freq:587.33, time:2.6, dur:0.15},  // D5
+      {freq:659.25, time:2.75, dur:0.15}, // E5
+      {freq:783.99, time:2.9, dur:0.3},   // G5
+      {freq:659.25, time:3.2, dur:0.3},   // E5
+      {freq:523.25, time:3.5, dur:0.6},   // C5
+    ];
+    
+    notes.forEach(function(n) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = n.freq;
+      gain.gain.setValueAtTime(0.3, now + n.time);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + n.time + n.dur);
+      osc.start(now + n.time);
+      osc.stop(now + n.time + n.dur);
+    });
+    
+    document.getElementById('musicFloatIcon').textContent = '??';
+    setTimeout(function() { document.getElementById('musicFloatIcon').textContent = '??'; }, 4000);
+  } catch(e) {
+    alert('播放失败了，试试上面的网易云播放器 ??');
+  }
+}
