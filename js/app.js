@@ -2,11 +2,13 @@
 function checkPwd() {
   var input = document.getElementById('pwdInput').value;
   if (input === SITE_PASSWORD) {
+    // Kill particles to save CPU
+    stopLoginParticles = true;
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('app').classList.add('show');
     document.getElementById('loader').classList.add('hide');
-    setTimeout(function() { document.getElementById('loader').style.display = 'none'; }, 800);
+    document.getElementById('loader').style.display = 'none';
     initApp();
   } else {
     document.getElementById('pwdError').textContent = 'Wrong password, try again';
@@ -20,11 +22,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.key === 'Enter') checkPwd();
   });
   initLoginParticles();
-  // Hide loader as soon as possible (max 500ms)
-  setTimeout(function() { document.getElementById('loader').classList.add('hide'); }, 500);
+  // Hide loader immediately
+  setTimeout(function() { 
+    document.getElementById('loader').classList.add('hide');
+    document.getElementById('loader').style.display = 'none'; 
+  }, 100);
 });
 
 /* ===== Particles ===== */
+var stopLoginParticles = false;
+
 function initLoginParticles() {
   var c = document.getElementById('loginParticles');
   if (!c) return;
@@ -32,12 +39,13 @@ function initLoginParticles() {
   c.width = window.innerWidth;
   c.height = window.innerHeight;
   var particles = [];
-  for (var i = 0; i < 60; i++) particles.push({
+  for (var i = 0; i < 40; i++) particles.push({
     x: Math.random() * c.width, y: Math.random() * c.height,
     size: Math.random() * 6 + 2, speedX: (Math.random() - 0.5) * 0.5,
     speedY: (Math.random() - 0.5) * 0.5, alpha: Math.random() * 0.5 + 0.1
   });
   function animate() {
+    if (stopLoginParticles) { c.style.display = 'none'; return; }
     ctx.clearRect(0, 0, c.width, c.height);
     particles.forEach(function(p) {
       ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -632,7 +640,7 @@ function initHeroCanvas() {
   function resize() { c.width = c.parentElement.offsetWidth; c.height = c.parentElement.offsetHeight; }
   resize(); window.addEventListener('resize', resize);
   var particles = [];
-  for (var i = 0; i < 80; i++) particles.push({
+  for (var i = 0; i < 40; i++) particles.push({
     x: Math.random() * c.width, y: Math.random() * c.height,
     size: Math.random() * 3 + 1, alpha: Math.random() * 0.5 + 0.1,
     speedX: (Math.random() - 0.5) * 0.3, speedY: (Math.random() - 0.5) * 0.3,
