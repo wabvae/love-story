@@ -61,10 +61,12 @@ function initApp() {
   collectPhotos();
   renderStats();
   renderMilestones();
+  renderNextMilestone();
   renderPhotoStrip();
   renderLatestMemories();
   renderLoveQuote();
   renderWishList();
+  renderFuturePlans();
   renderTimeline(memories);
   renderGallery();
   renderLetters();
@@ -328,10 +330,32 @@ var defaultWishes = [
   { icon: '🎢', text: '一起去游乐园' },
   { icon: '🍜', text: '一起吃遍美食街' },
   { icon: '🌅', text: '一起看一次日出' },
+  { icon: '🌄', text: '一起看一次日落' },
   { icon: '✈️', text: '一起去旅行' },
+  { icon: '🏔️', text: '一起爬一次山' },
   { icon: '📸', text: '拍一组情侣写真' },
   { icon: '🎬', text: '一起看100部电影' },
-  { icon: '🏠', text: '一起布置我们的小家' }
+  { icon: '📖', text: '一起读完一本书' },
+  { icon: '🏠', text: '一起布置我们的小家' },
+  { icon: '🔑', text: '新房交房，拿到钥匙' },
+  { icon: '📐', text: '一起设计装修方案' },
+  { icon: '🎨', text: '一起选墙漆颜色' },
+  { icon: '🛋️', text: '一起挑家具逛家居城' },
+  { icon: '💡', text: '一起选灯和软装' },
+  { icon: '👷', text: '一起监工装修' },
+  { icon: '🧹', text: '一起打扫新家' },
+  { icon: '📦', text: '一起打包搬家' },
+  { icon: '🎉', text: '办一场乔迁派对' },
+  { icon: '🍳', text: '在新家一起做第一顿饭' },
+  { icon: '🌱', text: '在阳台养花种绿植' },
+  { icon: '🐱', text: '养一只小猫或小狗' },
+  { icon: '👨‍👩‍👧‍👦', text: '一起见家长' },
+  { icon: '🎄', text: '一起装饰第一个圣诞树' },
+  { icon: '🎂', text: '一起过每一个生日' },
+  { icon: '🏡', text: '在新家过第一个年' },
+  { icon: '📝', text: '给对方写一封信' },
+  { icon: '💍', text: '一起挑选对戒' },
+  { icon: '💑', text: '永远在一起' }
 ];
 
 function renderWishList() {
@@ -360,6 +384,101 @@ function toggleWish(idx) {
   wishes[idx].done = !wishes[idx].done;
   localStorage.setItem('loveWishes', JSON.stringify(wishes));
   renderWishList();
+}
+
+/* ===== Next Milestone Countdown ===== */
+function renderNextMilestone() {
+  var el = document.getElementById('nextMilestone');
+  if (!el) return;
+  var milestones = [
+    { label:'在一起', date:LOVE_START_DATE, icon:'💕' },
+    { label:'一个月', date:addDate(LOVE_START_DATE,0,1), icon:'🎉' },
+    { label:'100天', date:addDate(LOVE_START_DATE,100,0), icon:'💯' },
+    { label:'半年', date:addDate(LOVE_START_DATE,0,6), icon:'🎊' },
+    { label:'一周年', date:addDate(LOVE_START_DATE,0,12), icon:'🎂' },
+    { label:'500天', date:addDate(LOVE_START_DATE,500,0), icon:'🌟' }
+  ];
+  var today = new Date(); today.setHours(0,0,0,0);
+  var next = null;
+  for (var i = 0; i < milestones.length; i++) {
+    var d = new Date(milestones[i].date); d.setHours(0,0,0,0);
+    if (d >= today) { next = milestones[i]; break; }
+  }
+  if (!next) { el.style.display = 'none'; return; }
+  var d = new Date(next.date); d.setHours(0,0,0,0);
+  var remain = Math.floor((d - today) / 86400000);
+  el.style.display = 'block';
+  el.innerHTML = '<div class="next-milestone-card">' +
+    '<div class="next-milestone-icon">' + next.icon + '</div>' +
+    '<div class="next-milestone-info">' +
+      '<div class="next-milestone-label">下一个纪念日</div>' +
+      '<div class="next-milestone-name">' + next.label + '</div>' +
+      '<div class="next-milestone-date">' + next.date + '</div>' +
+    '</div>' +
+    '<div class="next-milestone-countdown">' +
+      '<div class="next-milestone-num">' + remain + '</div>' +
+      '<div class="next-milestone-unit">天后</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== Future Plans (新家计划) ===== */
+var defaultPlans = [
+  { icon: '🏗️', text: '新房交付', done: false },
+  { icon: '📐', text: '商量装修风格', done: false },
+  { icon: '🎨', text: '选乳胶漆颜色', done: false },
+  { icon: '🪵', text: '挑地板和瓷砖', done: false },
+  { icon: '🛋️', text: '选沙发和床', done: false },
+  { icon: '🍳', text: '选厨房橱柜', done: false },
+  { icon: '🚿', text: '选卫浴洁具', done: false },
+  { icon: '💡', text: '选全屋灯具', done: false },
+  { icon: '🏷️', text: '定制衣柜和收纳', done: false },
+  { icon: '🖼️', text: '选挂画装饰', done: false },
+  { icon: '🧹', text: '搬家前大扫除', done: false },
+  { icon: '📦', text: '打包搬家入住', done: false },
+  { icon: '🍳', text: '在新家做第一顿饭', done: false },
+  { icon: '🌱', text: '布置阳台小花园', done: false },
+  { icon: '🎉', text: '办暖房派对', done: false }
+];
+
+function renderFuturePlans() {
+  var grid = document.getElementById('plansGrid');
+  if (!grid) return;
+  var plans = JSON.parse(localStorage.getItem('lovePlans') || 'null');
+  if (!plans || !plans.length) {
+    plans = defaultPlans.map(function(p) { return { icon: p.icon, text: p.text, done: p.done }; });
+    localStorage.setItem('lovePlans', JSON.stringify(plans));
+  }
+  grid.innerHTML = '';
+  plans.forEach(function(p, i) {
+    var el = document.createElement('div');
+    el.className = 'plan-item' + (p.done ? ' done' : '');
+    el.onclick = function() { togglePlan(i); };
+    el.innerHTML = '<span class="plan-icon">' + p.icon + '</span>' +
+      '<span class="plan-text">' + escHtml(p.text) + '</span>' +
+      '<span class="plan-check">' + (p.done ? '✓' : '') + '</span>';
+    grid.appendChild(el);
+  });
+  updatePlanProgress();
+}
+
+function togglePlan(idx) {
+  var plans = JSON.parse(localStorage.getItem('lovePlans'));
+  if (!plans || idx >= plans.length) return;
+  plans[idx].done = !plans[idx].done;
+  localStorage.setItem('lovePlans', JSON.stringify(plans));
+  renderFuturePlans();
+}
+
+function updatePlanProgress() {
+  var bar = document.getElementById('planProgress');
+  if (!bar) return;
+  var plans = JSON.parse(localStorage.getItem('lovePlans') || '[]');
+  if (!plans.length) return;
+  var done = plans.filter(function(p) { return p.done; }).length;
+  var pct = Math.round(done / plans.length * 100);
+  bar.innerHTML = '<div class="plan-progress-bar"><div class="plan-progress-fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="plan-progress-text">装修进度 ' + done + '/' + plans.length + '（' + pct + '%）</div>';
 }
 
 /* ===== Pages (SPA mode) ===== */
