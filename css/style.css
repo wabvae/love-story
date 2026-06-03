@@ -53,6 +53,11 @@ body {
 .loader-text { color:var(--text-secondary); font-size:14px; margin-top:16px; letter-spacing:2px; }
 
 /* ===== Login Page ===== */
+/* Improve initial rendering performance */
+.hero-section { content-visibility: auto; contain-intrinsic-size: 600px; }
+#homeContent { content-visibility: auto; contain-intrinsic-size: 1000px; }
+.timeline, .gallery-masonry { content-visibility: auto; contain-intrinsic-size: 500px; }
+
 .login-overlay {
   position:fixed; inset:0; z-index:9998;
   display:flex; align-items:center; justify-content:center;
@@ -242,6 +247,7 @@ body {
   width:100%; aspect-ratio:1; object-fit:cover; border-radius:14px;
   cursor:pointer; transition:transform 0.3s, box-shadow 0.3s;
   border: 2px solid rgba(255,255,255,0.5);
+  background: #f5e5ec; /* placeholder */
 }
 .photo-strip img:hover { transform:scale(1.04); box-shadow:0 8px 24px rgba(255,107,157,0.2); z-index:2; position:relative; }
 
@@ -332,6 +338,7 @@ body {
   cursor:pointer; transition:transform 0.3s;
   break-inside:avoid;
   border: 2px solid rgba(255,255,255,0.5);
+  background: #f5e5ec; /* placeholder background while loading */
 }
 .gallery-masonry img:hover { transform:scale(1.02); }
 
@@ -434,6 +441,10 @@ body {
   .music-float { bottom:16px; right:16px; width:180px; }
   .music-float-panel { width:260px; }
 }
+
+/* ===== Page Toggle (SPA mode) ===== */
+.page { display: none; }
+.page.active { display: block; }
 
 /* ===== Lightbox ===== */
 .lightbox {

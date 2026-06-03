@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.key === 'Enter') checkPwd();
   });
   initLoginParticles();
-  setTimeout(function() { document.getElementById('loader').classList.add('hide'); }, 2000);
+  // Hide loader as soon as possible (max 500ms)
+  setTimeout(function() { document.getElementById('loader').classList.add('hide'); }, 500);
 });
 
 /* ===== Particles ===== */
@@ -223,17 +224,16 @@ function buildFilters() {
     var btn = document.createElement('button');
     btn.className = 'filter-tab';
     btn.textContent = ym; btn.dataset.ym = ym;
-    btn.onclick = function() { filterBy(ym); };
+    btn.onclick = function(e) { filterBy(ym, e.target); };
     bar.appendChild(btn);
   });
 }
 
-function filterBy(filter) {
+function filterBy(filter, el) {
   document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
-  event.target.classList.add('active');
+  (el || event.target).classList.add('active');
   var items = filter === 'all' ? memories : memories.filter(function(m) { return m.date.substring(0,7) === filter; });
   renderTimeline(items);
-  document.getElementById('timeline').scrollIntoView({behavior:'smooth'});
 }
 
 /* ===== Letters ===== */
@@ -265,14 +265,17 @@ function renderLetters() {
   });
 }
 
-/* ===== Pages ===== */
+/* ===== Pages (SPA mode) ===== */
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('page-' + page).classList.add('active');
   var navItem = document.querySelector('.nav-item[data-page="' + page + '"]');
   if (navItem) navItem.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+  // Scroll to top of the newly active page (non-home pages need padding offset)
+  setTimeout(function() {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }, 10);
   document.getElementById('navMenu').classList.remove('open');
 }
 
