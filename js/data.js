@@ -137,11 +137,34 @@ const loveQuotes = [
   '想和你一起慢慢变老，看遍四季风景 🍂🌻❄️🌸'
 ];
 
-// ===== 重要里程碑（自动计算） =====
-// 不用手动改，系统会算
-const milestones = [
-  { name: '在一起', date: '2025-12-06', icon: '💕' },
-  { name: '第一个月', date: '2026-01-06', icon: '🎉' },
-  { name: '100天', date: '2026-03-16', icon: '💯' },
-  { name: '半年', date: '2026-06-06', icon: '🎊' }
+// ===== 默契问答（选择题） =====
+// 女票的回答在下标 0 开始，他的回答在下标 1 开始
+// 如果两人答案一样就是默契！
+const quizQuestions = [
+  { q: '我们在一起是哪一天？', her: '2025.12.6', him: '2025.12.6', icon: '💕' },
+  { q: '宝贝最喜欢什么颜色？', her: '粉色', him: '', icon: '🎨' },
+  { q: '第一次约会去了哪里？', her: '', him: '', icon: '📍' },
+  { q: '宝贝最爱吃什么？', her: '', him: '', icon: '🍜' },
+  { q: '我们第一次看的电影是什么？', her: '', him: '', icon: '🎬' },
+  { q: '宝贝的生日是哪天？', her: '', him: '', icon: '🎂' },
+  { q: '宝贝最喜欢的花是什么？', her: '', him: '', icon: '🌸' },
+  { q: '我们一起去过最远的地方是？', her: '', him: '', icon: '✈️' },
+  { q: '宝贝最想去哪个国家旅行？', her: '', him: '', icon: '🗺️' },
+  { q: '我们第一次牵手是在哪里？', her: '', him: '', icon: '🤝' }
+];
+
+// ===== 爱的成就 =====
+const achievements = [
+  { id: 'first_meet', icon: '👋', title: '相遇', desc: '我们在茫茫人海中相遇', unlocked: true },
+  { id: 'together', icon: '💕', title: '在一起', desc: '2025.12.6 我们成为彼此的另一半', unlocked: true },
+  { id: '100days', icon: '💯', title: '100天', desc: '在一起的第一个100天', unlocked: true, date: '2026-03-16' },
+  { id: 'photo_book', icon: '📖', title: '照片书', desc: '把回忆装进照片书', unlocked: true },
+  { id: 'website', icon: '🌐', title: '专属网站', desc: '拥有了我们的爱情小站', unlocked: true },
+  { id: 'new_home', icon: '🏡', title: '新家钥匙', desc: '拿到新家钥匙，开启新生活', unlocked: false },
+  { id: 'move_in', icon: '📦', title: '搬家入住', desc: '搬进属于我们的家', unlocked: false },
+  { id: 'half_year', icon: '🎊', title: '半周年', desc: '在一起半年啦', unlocked: false, date: '2026-06-06' },
+  { id: 'trip', icon: '✈️', title: '第一次远行', desc: '一起去远方旅行', unlocked: false },
+  { id: 'one_year', icon: '🎂', title: '一周年', desc: '在一起一整年', unlocked: false, date: '2026-12-06' },
+  { id: 'pet', icon: '🐱', title: '养宠物', desc: '一起养一只小可爱', unlocked: false },
+  { id: 'propose', icon: '💍', title: '永远', desc: '往后余生都是你', unlocked: false }
 ];

@@ -40,6 +40,7 @@
         <a class="nav-item" data-page="story" onclick="switchPage('story')">📖 回忆</a>
         <a class="nav-item" data-page="gallery" onclick="switchPage('gallery')">📷 相册</a>
         <a class="nav-item" data-page="letter" onclick="switchPage('letter')">💌 留言</a>
+        <a class="nav-item" data-page="quiz" onclick="switchPage('quiz')">🤔 默契</a>
       </div>
       <button class="nav-toggle" onclick="toggleMenu()">☰</button>
     </div>
@@ -124,6 +125,36 @@
 
       <section class="section">
         <div class="container">
+          <div id="todayMemory"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2 class="section-title">📝 恋爱日记</h2>
+          <div class="diary-form">
+            <div class="diary-avatar">💕</div>
+            <textarea id="diaryInput" placeholder="今天想记录什么呢..." rows="2"></textarea>
+            <div class="diary-actions">
+              <select id="diaryMood" class="diary-mood-select">
+                <option value="💕">💕 甜蜜</option>
+                <option value="😊">😊 开心</option>
+                <option value="🥰">🥰 心动</option>
+                <option value="😋">😋 吃货</option>
+                <option value="😤">😤 生气</option>
+                <option value="😭">😭 感动</option>
+                <option value="☀️">☀️ 美好</option>
+                <option value="🌙">🌙 晚安</option>
+              </select>
+              <button id="diaryPostBtn" onclick="postDiary()">记录今日 ✍️</button>
+            </div>
+          </div>
+          <div class="diary-list" id="diaryList"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
           <h2 class="section-title">💌 恋爱语录</h2>
           <div class="quote-card">
             <div class="quote-text" id="loveQuoteText"></div>
@@ -154,6 +185,14 @@
           <div style="margin-top:16px;">
             <div class="plans-grid" id="plansGrid"></div>
           </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2 class="section-title">🏆 爱的成就</h2>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">我们共同解锁的每一个里程碑 🌟</p>
+          <div class="achievement-grid" id="achievementGrid"></div>
         </div>
       </section>
     </div>
@@ -199,6 +238,17 @@
       <div class="letters-wall" id="lettersWall">
         <div class="empty-state">还没有留言，写一条吧 💕</div>
       </div>
+    </div>
+  </section>
+
+  <section id="page-quiz" class="page">
+    <div class="page-hero-sm">
+      <h1>🤔 默契大考验</h1>
+      <p>看看你们有多了解彼此 💕</p>
+    </div>
+    <div class="container">
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:20px;text-align:center;">在 data.js 里填上答案，如果两人写的一样就是默契满分！</p>
+      <div id="quizContainer"></div>
     </div>
   </section>
 

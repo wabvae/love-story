@@ -64,12 +64,16 @@ function initApp() {
   renderNextMilestone();
   renderPhotoStrip();
   renderLatestMemories();
+  renderTodayMemory();
+  renderLoveDiary();
   renderLoveQuote();
   renderWishList();
   renderFuturePlans();
+  renderAchievements();
   renderTimeline(memories);
   renderGallery();
   renderLetters();
+  renderQuiz();
   buildFilters();
   initHeroCanvas();
   initScroll();
@@ -479,6 +483,132 @@ function updatePlanProgress() {
   var pct = Math.round(done / plans.length * 100);
   bar.innerHTML = '<div class="plan-progress-bar"><div class="plan-progress-fill" style="width:' + pct + '%"></div></div>' +
     '<div class="plan-progress-text">装修进度 ' + done + '/' + plans.length + '（' + pct + '%）</div>';
+}
+
+/* ===== Today's Memory Pick ===== */
+var todayMemoryIdx = -1;
+
+function renderTodayMemory() {
+  var el = document.getElementById('todayMemory');
+  if (!el || !memories.length) return;
+  pickRandomMemory();
+}
+
+function pickRandomMemory() {
+  var idx = Math.floor(Math.random() * memories.length);
+  todayMemoryIdx = idx;
+  showMemory(idx);
+}
+
+function showMemory(idx) {
+  var el = document.getElementById('todayMemory');
+  if (!el || idx < 0 || idx >= memories.length) return;
+  var m = memories[idx];
+  var text = m.text || '';
+  if (m.chats && m.chats.length) {
+    text = m.chats.map(function(c) { return c.name + ': ' + c.text; }).join('  ');
+  }
+  var photoHtml = '';
+  if (m.photos && m.photos.length) {
+    photoHtml = '<div class="today-memory-photos">';
+    m.photos.slice(0, 3).forEach(function(p) {
+      photoHtml += '<img src="photos/' + p + '" loading="lazy" onclick="openLightbox(\'photos/' + p + '\',allPhotos)" style="width:60px;height:60px;border-radius:10px;object-fit:cover;cursor:pointer">';
+    });
+    photoHtml += '</div>';
+  }
+  el.innerHTML = '<div class="today-memory-card">' +
+    '<div class="today-memory-header">
+      <span class="today-memory-badge">🎲 今日回忆</span>
+      <button class="today-memory-shuffle" onclick="pickRandomMemory()">换一个 ↻</button>
+    </div>' +
+    '<div class="today-memory-date">' + m.date + '</div>' +
+    '<div class="today-memory-title">' + (m.title || '') + '</div>' +
+    '<div class="today-memory-text">' + escHtml(text) + '</div>' +
+    photoHtml +
+  '</div>';
+}
+
+/* ===== Love Diary ===== */
+function renderLoveDiary() {
+  var list = document.getElementById('diaryList');
+  if (!list) return;
+  var entries = JSON.parse(localStorage.getItem('loveDiary') || '[]');
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty-state">还没有日记，写一篇吧 💕</div>';
+    return;
+  }
+  list.innerHTML = '';
+  entries.slice(0, 10).forEach(function(e) {
+    var el = document.createElement('div');
+    el.className = 'diary-item';
+    var ts = new Date(e.time);
+    var d = ts.getFullYear() + '-' + (ts.getMonth()+1).toString().padStart(2,'0') + '-' + ts.getDate().toString().padStart(2,'0');
+    var t = ts.getHours().toString().padStart(2,'0') + ':' + ts.getMinutes().toString().padStart(2,'0');
+    el.innerHTML = '<div class="diary-item-header">' +
+      '<span class="diary-item-date">' + d + '</span>' +
+      '<span class="diary-item-time">' + t + '</span>' +
+    '</div><div class="diary-item-text">' + escHtml(e.text) + '</div>' +
+    '<div class="diary-item-mood">' + (e.mood || '💕') + '</div>';
+    list.appendChild(el);
+  });
+}
+
+function postDiary() {
+  var input = document.getElementById('diaryInput');
+  var moodEl = document.getElementById('diaryMood');
+  var text = input.value.trim();
+  if (!text) return;
+  var mood = moodEl ? moodEl.value : '💕';
+  var entries = JSON.parse(localStorage.getItem('loveDiary') || '[]');
+  entries.unshift({ text: text, mood: mood, time: new Date().toISOString() });
+  localStorage.setItem('loveDiary', JSON.stringify(entries));
+  input.value = '';
+  renderLoveDiary();
+  // Show a little heart animation
+  var btn = document.getElementById('diaryPostBtn');
+  if (btn) { btn.textContent = '已记录 💖'; setTimeout(function(){ btn.textContent = '记录今日 ✍️'; }, 1500); }
+}
+
+/* ===== Achievements ===== */
+function renderAchievements() {
+  var grid = document.getElementById('achievementGrid');
+  if (!grid || !achievements) return;
+  grid.innerHTML = '';
+  achievements.forEach(function(a) {
+    var el = document.createElement('div');
+    el.className = 'achievement-item' + (a.unlocked ? '' : ' locked');
+    el.innerHTML = '<div class="achievement-icon">' + (a.unlocked ? a.icon : '🔒') + '</div>' +
+      '<div class="achievement-info">' +
+      '<div class="achievement-title">' + a.title + '</div>' +
+      '<div class="achievement-desc">' + a.desc + '</div>' +
+      (a.unlocked ? '<div class="achievement-check">✓</div>' : '<div class="achievement-locked">🔒</div>') +
+    '</div>';
+    grid.appendChild(el);
+  });
+}
+
+/* ===== Couple Quiz ===== */
+var quizState = {};
+
+function renderQuiz() {
+  var container = document.getElementById('quizContainer');
+  if (!container || !quizQuestions) return;
+  container.innerHTML = '';
+  quizQuestions.forEach(function(q, i) {
+    var el = document.createElement('div');
+    el.className = 'quiz-card';
+    var herAnswer = q.her || '🤔 等你来填';
+    var himAnswer = q.him || '🤔 等你来填';
+    var match = q.her && q.him && q.her.trim().toLowerCase() === q.him.trim().toLowerCase();
+    el.innerHTML = '<div class="quiz-icon">' + (q.icon || '💕') + '</div>' +
+      '<div class="quiz-question">' + escHtml(q.q) + '</div>' +
+      '<div class="quiz-answers">' +
+        '<div class="quiz-answer her"><span class="quiz-label">她的回答</span><span>' + escHtml(herAnswer) + '</span></div>' +
+        '<div class="quiz-answer him"><span class="quiz-label">他的回答</span><span>' + escHtml(himAnswer) + '</span></div>' +
+      '</div>' +
+      (match ? '<div class="quiz-match">💯 默契！</div>' : '<div class="quiz-nomatch">💔 还没填</div>');
+    container.appendChild(el);
+  });
 }
 
 /* ===== Pages (SPA mode) ===== */
