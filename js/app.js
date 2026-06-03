@@ -63,6 +63,8 @@ function initApp() {
   renderMilestones();
   renderPhotoStrip();
   renderLatestMemories();
+  renderLoveQuote();
+  renderWishList();
   renderTimeline(memories);
   renderGallery();
   renderLetters();
@@ -103,32 +105,32 @@ function renderStats() {
   var msgs = 0;
   memories.forEach(function(m) { if (m.chats) msgs += m.chats.length; });
   document.getElementById('statMessages').textContent = msgs;
-  document.querySelector('.counter-sublabel').textContent = 'since ' + LOVE_START_DATE;
+  document.querySelector('.counter-sublabel').textContent = '从 ' + LOVE_START_DATE + ' 开始';
 }
 
 function renderMilestones() {
   var grid = document.getElementById('milestonesGrid');
   if (!grid) return;
   var items = [
-    { label:'Together', date:LOVE_START_DATE, icon:'💕' },
-    { label:'1 Month', date:addDate(LOVE_START_DATE,0,1), icon:'🎉' },
-    { label:'100 Days', date:addDate(LOVE_START_DATE,100,0), icon:'💯' },
-    { label:'Half Year', date:addDate(LOVE_START_DATE,0,6), icon:'🎊' },
-    { label:'1 Year', date:addDate(LOVE_START_DATE,0,12), icon:'🎂' },
-    { label:'500 Days', date:addDate(LOVE_START_DATE,500,0), icon:'🌟' }
+    { label:'在一起', date:LOVE_START_DATE, icon:'💕' },
+    { label:'一个月', date:addDate(LOVE_START_DATE,0,1), icon:'🎉' },
+    { label:'100天', date:addDate(LOVE_START_DATE,100,0), icon:'💯' },
+    { label:'半年', date:addDate(LOVE_START_DATE,0,6), icon:'🎊' },
+    { label:'一周年', date:addDate(LOVE_START_DATE,0,12), icon:'🎂' },
+    { label:'500天', date:addDate(LOVE_START_DATE,500,0), icon:'🌟' }
   ];
   var today = new Date(); today.setHours(0,0,0,0);
   grid.innerHTML = '';
   items.forEach(function(m) {
     var d = new Date(m.date); d.setHours(0,0,0,0);
     var passed = today >= d;
-    var remain = Math.abs(Math.floor((d - today) / 86400000));
+    var remain = Math.floor((d - today) / 86400000);
     var el = document.createElement('div');
     el.className = 'milestone-item ' + (passed ? 'passed' : 'upcoming');
     el.innerHTML = '<div class="milestone-icon">' + m.icon + '</div>' +
       '<div class="milestone-info"><div class="milestone-label">' + m.label + '</div>' +
       '<div class="milestone-date">' + m.date + '</div></div>' +
-      '<div class="milestone-status">' + (passed ? 'Done' : 'in ' + remain + 'd') + '</div>';
+      '<div class="milestone-status">' + (passed ? '已达成 ✓' : '还有 ' + remain + ' 天') + '</div>';
     grid.appendChild(el);
   });
 }
@@ -164,7 +166,7 @@ function renderLatestMemories() {
     el.className = 'latest-card';
     el.onclick = function() { switchPage('story'); };
     el.innerHTML = '<div class="latest-card-icon">💕</div>' +
-      '<div class="latest-card-info"><div class="latest-card-title">' + (m.title || 'Memory') + '</div>' +
+      '<div class="latest-card-info"><div class="latest-card-title">' + (m.title || '回忆') + '</div>' +
       '<div class="latest-card-date">' + m.date + '</div>' +
       '<div class="latest-card-text">' + escHtml(text.substring(0,40)) + '</div></div>';
     container.appendChild(el);
@@ -263,6 +265,101 @@ function renderLetters() {
     el.innerHTML = '<div class="letter-header"><span>' + (l.name==='He'?'💙':'💕') + '</span><span class="letter-author">' + escHtml(l.name) + '</span><span class="letter-time">' + t + '</span></div><div class="letter-content">' + escHtml(l.text) + '</div>';
     wall.appendChild(el);
   });
+}
+
+/* ===== Love Quote Rotator ===== */
+var quoteIndex = 0;
+var quoteTimer = null;
+
+function renderLoveQuote() {
+  if (!loveQuotes || !loveQuotes.length) return;
+  var el = document.getElementById('loveQuoteText');
+  var dots = document.getElementById('quoteDots');
+  if (!el) return;
+  quoteIndex = 0;
+  showQuote(0);
+  if (dots) {
+    dots.innerHTML = '';
+    loveQuotes.forEach(function(q, i) {
+      var d = document.createElement('span');
+      d.className = 'quote-dot' + (i === 0 ? ' active' : '');
+      dots.appendChild(d);
+    });
+  }
+  startQuoteTimer();
+}
+
+function showQuote(idx) {
+  var el = document.getElementById('loveQuoteText');
+  if (!el) return;
+  var dots = document.querySelectorAll('.quote-dot');
+  el.textContent = loveQuotes[idx];
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+}
+
+function nextQuote() {
+  quoteIndex = (quoteIndex + 1) % loveQuotes.length;
+  showQuote(quoteIndex);
+  resetQuoteTimer();
+}
+
+function prevQuote() {
+  quoteIndex = (quoteIndex - 1 + loveQuotes.length) % loveQuotes.length;
+  showQuote(quoteIndex);
+  resetQuoteTimer();
+}
+
+function startQuoteTimer() {
+  if (quoteTimer) clearInterval(quoteTimer);
+  quoteTimer = setInterval(function() {
+    quoteIndex = (quoteIndex + 1) % loveQuotes.length;
+    showQuote(quoteIndex);
+  }, 5000);
+}
+
+function resetQuoteTimer() {
+  if (quoteTimer) clearInterval(quoteTimer);
+  startQuoteTimer();
+}
+
+/* ===== Wish List ===== */
+var defaultWishes = [
+  { icon: '🌊', text: '一起去看海' },
+  { icon: '🎢', text: '一起去游乐园' },
+  { icon: '🍜', text: '一起吃遍美食街' },
+  { icon: '🌅', text: '一起看一次日出' },
+  { icon: '✈️', text: '一起去旅行' },
+  { icon: '📸', text: '拍一组情侣写真' },
+  { icon: '🎬', text: '一起看100部电影' },
+  { icon: '🏠', text: '一起布置我们的小家' }
+];
+
+function renderWishList() {
+  var grid = document.getElementById('wishGrid');
+  if (!grid) return;
+  var wishes = JSON.parse(localStorage.getItem('loveWishes') || 'null');
+  if (!wishes || !wishes.length) {
+    wishes = defaultWishes.map(function(w) { return { icon: w.icon, text: w.text, done: false }; });
+    localStorage.setItem('loveWishes', JSON.stringify(wishes));
+  }
+  grid.innerHTML = '';
+  wishes.forEach(function(w, i) {
+    var el = document.createElement('div');
+    el.className = 'wish-item' + (w.done ? ' done' : '');
+    el.onclick = function() { toggleWish(i); };
+    el.innerHTML = '<span class="wish-icon">' + w.icon + '</span>' +
+      '<span class="wish-text">' + escHtml(w.text) + '</span>' +
+      '<span class="wish-check">' + (w.done ? '✓' : '') + '</span>';
+    grid.appendChild(el);
+  });
+}
+
+function toggleWish(idx) {
+  var wishes = JSON.parse(localStorage.getItem('loveWishes'));
+  if (!wishes || idx >= wishes.length) return;
+  wishes[idx].done = !wishes[idx].done;
+  localStorage.setItem('loveWishes', JSON.stringify(wishes));
+  renderWishList();
 }
 
 /* ===== Pages (SPA mode) ===== */

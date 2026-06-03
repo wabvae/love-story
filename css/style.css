@@ -217,7 +217,14 @@ body {
   box-shadow: 0 4px 20px rgba(255,107,157,0.06);
 }
 .stat-card:hover { transform:translateY(-4px); }
-.stat-icon { font-size:30px; line-height:1.3; margin-bottom:6px; }
+.stat-icon {
+  font-size: 28px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
 .stat-num { font-size:28px; font-weight:800; color:var(--primary-dark); }
 .stat-label { color:var(--text-secondary); font-size:13px; margin-top:4px; }
 
@@ -231,13 +238,87 @@ body {
   transition:transform 0.2s;
 }
 .milestone-item:hover { transform:translateX(6px); }
-.milestone-icon { font-size:24px; width:36px; text-align:center; }
-.milestone-info { flex:1; }
+.milestone-icon { font-size:24px; width:36px; text-align:center; flex-shrink:0; }
+.milestone-info { flex:1; min-width:0; }
 .milestone-label { font-size:15px; font-weight:600; color:var(--text); }
 .milestone-date { font-size:12px; color:var(--text-secondary); margin-top:2px; }
-.milestone-status { font-size:12px; padding:4px 12px; border-radius:10px; }
+.milestone-status { font-size:12px; padding:4px 12px; border-radius:10px; white-space:nowrap; }
 .milestone-item.passed .milestone-status { background:#e8f5e9; color:#4caf50; }
 .milestone-item.upcoming .milestone-status { background:#fff3e0; color:#ff9800; }
+
+/* ===== Love Quote ===== */
+.quote-card {
+  background: linear-gradient(135deg, rgba(255,107,157,0.08), rgba(255,182,193,0.12));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.quote-card::before {
+  content: '"';
+  position: absolute;
+  top: -10px; left: 16px;
+  font-size: 80px;
+  color: rgba(255,107,157,0.1);
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+.quote-card::after {
+  content: '"';
+  position: absolute;
+  bottom: -40px; right: 16px;
+  font-size: 80px;
+  color: rgba(255,107,157,0.1);
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+.quote-text {
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1.8;
+  font-weight: 500;
+  min-height: 60px;
+  transition: opacity 0.5s;
+}
+.quote-text.fade { opacity: 0; }
+.quote-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+.quote-nav-btn {
+  background: none;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  width: 32px; height: 32px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quote-nav-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.quote-nav-dots {
+  display: flex;
+  gap: 6px;
+}
+.quote-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--secondary);
+  transition: all 0.3s;
+}
+.quote-dot.active { background: var(--primary); width: 20px; border-radius: 3px; }
 
 /* ===== Photo Strip ===== */
 .photo-strip {
@@ -333,6 +414,49 @@ body {
 .gallery-masonry {
   columns: 3; column-gap: 12px;
 }
+/* ===== Wish List ===== */
+.wish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.wish-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.wish-item:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(255,107,157,0.1); }
+.wish-item.done {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+.wish-item.done .wish-icon { filter: grayscale(1); }
+.wish-icon { font-size: 24px; flex-shrink: 0; }
+.wish-text { font-size: 14px; color: var(--text); flex: 1; }
+.wish-check {
+  width: 22px; height: 22px;
+  border: 2px solid var(--secondary);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: transparent;
+}
+.wish-item.done .wish-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
 .gallery-masonry img {
   width:100%; border-radius:16px; margin-bottom:12px;
   cursor:pointer; transition:transform 0.3s;
