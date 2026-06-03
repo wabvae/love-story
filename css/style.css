@@ -217,7 +217,7 @@ body {
   box-shadow: 0 4px 20px rgba(255,107,157,0.06);
 }
 .stat-card:hover { transform:translateY(-4px); }
-.stat-icon { font-size:28px; margin-bottom:8px; }
+.stat-icon { font-size:30px; line-height:1.3; margin-bottom:6px; }
 .stat-num { font-size:28px; font-weight:800; color:var(--primary-dark); }
 .stat-label { color:var(--text-secondary); font-size:13px; margin-top:4px; }
 
