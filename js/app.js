@@ -517,10 +517,7 @@ function showMemory(idx) {
     photoHtml += '</div>';
   }
   el.innerHTML = '<div class="today-memory-card">' +
-    '<div class="today-memory-header">
-      <span class="today-memory-badge">🎲 今日回忆</span>
-      <button class="today-memory-shuffle" onclick="pickRandomMemory()">换一个 ↻</button>
-    </div>' +
+    '<div class="today-memory-header"><span class="today-memory-badge">🎲 今日回忆</span><button class="today-memory-shuffle" onclick="pickRandomMemory()">换一个 ↻</button></div>' +
     '<div class="today-memory-date">' + m.date + '</div>' +
     '<div class="today-memory-title">' + (m.title || '') + '</div>' +
     '<div class="today-memory-text">' + escHtml(text) + '</div>' +
