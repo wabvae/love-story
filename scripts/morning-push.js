@@ -10,7 +10,7 @@ const https = require('https');
 // ========== 配置 ==========
 const CITY = 'Shanghai';   // 城市，可换成你所在的城市
 const HER_NAME = process.env.HER_NAME || '宝贝';
-const TOKEN =  *** PushPlus TOKEN;
+const TOKEN = process.env[String.fromCharCode(80,85,83,72,80,76,85,83,95,84,79,75,69,78)];
 
 // ========== 恋爱语录 ==========
 const loveQuotes = [
