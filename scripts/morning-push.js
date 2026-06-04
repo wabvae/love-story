@@ -2,16 +2,17 @@
  * 早安推送脚本 💕
  * 每天早7点自动推送：情话 + 天气 + 穿衣推荐 + 防晒提醒
  * 通过 GitHub Actions 定时触发
+ * 使用原生 https 模块（无需 node-fetch 依赖）
  */
 
-const fetch = require('node-fetch');
+const https = require('https');
 
 // ========== 配置 ==========
 const CITY = 'Shanghai';   // 城市，可换成你所在的城市
 const HER_NAME = process.env.HER_NAME || '宝贝';
-const TOKEN = process.env.PUSHPLUS_TOKEN;
+const TOKEN = proces…KEN;
 
-// ========== 恋爱语录（你网站里的那些） ==========
+// ========== 恋爱语录 ==========
 const loveQuotes = [
   '和你在一起的每一天，都是最好的礼物 💕',
   '世界很大，但我的世界里有你就够了',
@@ -29,7 +30,7 @@ const loveQuotes = [
   '想和你一起慢慢变老，看遍四季风景 🍂🌻❄️🌸'
 ];
 
-// ========== 你每天对她说的话（会按天轮换） ==========
+// ========== 每日情话 ==========
 const dailyMessages = [
   '宝贝早上好呀～新的一天开始了，你今天也要开开心心的哦 ✨',
   '早安宝贝！昨晚睡得好吗？有没有梦到我呀 😄',
@@ -47,7 +48,7 @@ const dailyMessages = [
   '又是元气满满的一天！因为今天也有你 💪',
 ];
 
-// ========== 防晒/穿衣指南 ==========
+// ========== 工具函数 ==========
 function getUVIndex(uv) {
   const index = parseInt(uv) || 0;
   if (index <= 2) return { level: '低 🌿', tip: '紫外线较低，正常出门就好～' };
@@ -59,7 +60,6 @@ function getUVIndex(uv) {
 function getClothingSuggestion(temp, weatherDesc) {
   const t = parseInt(temp) || 20;
   const isRain = /rain|shower|drizzle|雷|雨/i.test(weatherDesc);
-
   let suggestion = '';
   if (t >= 30) suggestion = '今天很热🔥，穿短袖短裤就行，注意防暑～';
   else if (t >= 25) suggestion = '天气温暖🌤，穿短袖或薄长裙正合适～';
@@ -67,110 +67,117 @@ function getClothingSuggestion(temp, weatherDesc) {
   else if (t >= 15) suggestion = '有点凉🍂，建议长袖+外套，别感冒了～';
   else if (t >= 10) suggestion = '比较冷🧥，穿厚外套或毛衣吧～';
   else suggestion = '天冷🥶，多穿点！羽绒服围巾安排上～';
-
   if (isRain) suggestion += ' 今天有雨🌧，记得带伞！';
   return suggestion;
 }
 
 function getWindSuggestion(windSpeed) {
   const speed = parseFloat(windSpeed) || 0;
-  if (speed > 30) return '今天风大，出门注意保暖防风～';
-  return '';
+  return speed > 30 ? '今天风大，出门注意保暖防风～' : '';
+}
+
+// ========== HTTP 工具 ==========
+function httpGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'curl' } }, res => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { reject(new Error('Parse failed: ' + data.substring(0,100))); }
+      });
+    }).on('error', reject);
+  });
+}
+
+function httpPost(url, body) {
+  return new Promise((resolve, reject) => {
+    const bodyStr = JSON.stringify(body);
+    const u = new URL(url);
+    const opts = {
+      hostname: u.hostname, path: u.pathname, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) }
+    };
+    const req = https.request(opts, res => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { resolve(data); }
+      });
+    });
+    req.on('error', reject);
+    req.write(bodyStr);
+    req.end();
+  });
 }
 
 // ========== 获取天气 ==========
 async function getWeather(city) {
-  const url = `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`;
-  const res = await fetch(url);
-  const data = await res.json();
-
+  const data = await httpGet(`https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`);
   const current = data.current_condition[0];
-  const forecast = data.weather[0]; // today
-
+  const today = data.weather[0];
   return {
     city: data.nearest_area[0].areaName[0].value,
     temp: current.temp_C,
-    feelLike: current.FeelsLikeC,
     weather: current.weatherDesc[0].value,
     humidity: current.humidity,
     windSpeed: current.windspeedKmph,
     uvIndex: current.uvIndex,
-    sunrise: astronomy ? astronomy[0].sunrise : '未知',
-    sunset: astronomy ? astronomy[0].sunset : '未知',
-    maxTemp: forecast ? forecast.maxtempC : current.temp_C,
-    minTemp: forecast ? forecast.mintempC : current.temp_C,
-    astronomy: data.weather[0].astronomy || [{ sunrise: '--', sunset: '--' }]
+    sunrise: today.astronomy[0].sunrise,
+    sunset: today.astronomy[0].sunset,
+    maxTemp: today.maxtempC,
+    minTemp: today.mintempC
   };
 }
 
 // ========== 生成推送内容 ==========
-function buildMessage(weather, quoteIndex, msgIndex) {
+function buildMessage(weather, quote, message) {
   const today = new Date();
-  const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-  const dayOfWeek = weekdays[today.getDay()];
-
+  const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日 星期${weekdays[today.getDay()]}`;
   const uv = getUVIndex(weather.uvIndex);
   const clothing = getClothingSuggestion(weather.temp, weather.weather);
   const wind = getWindSuggestion(weather.windSpeed);
 
-  const quote = loveQuotes[quoteIndex % loveQuotes.length];
-  const message = dailyMessages[msgIndex % dailyMessages.length];
-
-  const sunrise = weather.astronomy ? weather.astronomy[0].sunrise : '--';
-  const sunset = weather.astronomy ? weather.astronomy[0].sunset : '--';
-
   return `
-<div style="font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #fce4ec, #fff0f5); border-radius: 20px; padding: 30px; box-shadow: 0 8px 32px rgba(233,30,99,0.1);">
+<div style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;max-width:500px;margin:0 auto;background:linear-gradient(135deg,#fce4ec,#fff0f5);border-radius:20px;padding:30px;box-shadow:0 8px 32px rgba(233,30,99,0.1)">
 
-  <div style="text-align: center; margin-bottom: 20px;">
-    <div style="font-size: 48px; margin-bottom: 8px;">💕</div>
-    <div style="font-size: 24px; font-weight: bold; color: #e91e63;">早安，${HER_NAME}</div>
-    <div style="font-size: 14px; color: #999; margin-top: 4px;">${dateStr} 星期${dayOfWeek}</div>
+  <div style="text-align:center;margin-bottom:20px">
+    <div style="font-size:48px;margin-bottom:8px">💕</div>
+    <div style="font-size:24px;font-weight:bold;color:#e91e63">早安，${HER_NAME}</div>
+    <div style="font-size:14px;color:#999;margin-top:4px">${dateStr}</div>
   </div>
 
-  <div style="background: rgba(255,255,255,0.85); border-radius: 14px; padding: 18px; margin-bottom: 14px;">
-    <div style="font-size: 14px; font-weight: bold; color: #e91e63; margin-bottom: 8px;">🌤 今日天气</div>
-    <table style="width: 100%; font-size: 13px; color: #333;">
-      <tr>
-        <td style="padding: 4px 8px;">📍 ${weather.city}</td>
-        <td style="padding: 4px 8px;">🌡 ${weather.temp}°C (${weather.minTemp}~${weather.maxTemp}°C)</td>
-      </tr>
-      <tr>
-        <td style="padding: 4px 8px;">☁ ${weather.weather}</td>
-        <td style="padding: 4px 8px;">💧 ${weather.humidity}%</td>
-      </tr>
-      <tr>
-        <td style="padding: 4px 8px;">🌅 日出 ${sunrise}</td>
-        <td style="padding: 4px 8px;">🌇 日落 ${sunset}</td>
-      </tr>
+  <div style="background:rgba(255,255,255,0.85);border-radius:14px;padding:18px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:bold;color:#e91e63;margin-bottom:8px">🌤 今日天气</div>
+    <table style="width:100%;font-size:13px;color:#333">
+      <tr><td style="padding:4px 8px">📍 ${weather.city}</td><td style="padding:4px 8px">🌡 ${weather.temp}°C (${weather.minTemp}~${weather.maxTemp}°C)</td></tr>
+      <tr><td style="padding:4px 8px">☁ ${weather.weather}</td><td style="padding:4px 8px">💧 ${weather.humidity}%</td></tr>
+      <tr><td style="padding:4px 8px">🌅 日出 ${weather.sunrise}</td><td style="padding:4px 8px">🌇 日落 ${weather.sunset}</td></tr>
     </table>
   </div>
 
-  <div style="background: rgba(255,255,255,0.85); border-radius: 14px; padding: 18px; margin-bottom: 14px;">
-    <div style="font-size: 14px; font-weight: bold; color: #e91e63; margin-bottom: 8px;">👗 穿衣推荐</div>
-    <div style="font-size: 13px; color: #555; line-height: 1.6;">${clothing}</div>
+  <div style="background:rgba(255,255,255,0.85);border-radius:14px;padding:18px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:bold;color:#e91e63;margin-bottom:8px">👗 穿衣推荐</div>
+    <div style="font-size:13px;color:#555;line-height:1.6">${clothing}</div>
   </div>
 
-  <div style="background: rgba(255,255,255,0.85); border-radius: 14px; padding: 18px; margin-bottom: 14px;">
-    <div style="font-size: 14px; font-weight: bold; color: #e91e63; margin-bottom: 8px;">☀️ 防晒提醒</div>
-    <div style="font-size: 13px; color: #555; line-height: 1.6;">紫外线强度：${uv.level}</div>
-    <div style="font-size: 13px; color: #555; line-height: 1.6;">${uv.tip}</div>
-    ${wind ? `<div style="font-size: 13px; color: #555; margin-top: 4px;">${wind}</div>` : ''}
+  <div style="background:rgba(255,255,255,0.85);border-radius:14px;padding:18px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:bold;color:#e91e63;margin-bottom:8px">☀️ 防晒提醒</div>
+    <div style="font-size:13px;color:#555;line-height:1.6">紫外线强度：${uv.level}</div>
+    <div style="font-size:13px;color:#555;line-height:1.6">${uv.tip}</div>
+    ${wind ? `<div style="font-size:13px;color:#555;margin-top:4px">${wind}</div>` : ''}
   </div>
 
-  <div style="background: rgba(255,255,255,0.85); border-radius: 14px; padding: 18px; margin-bottom: 14px;">
-    <div style="font-size: 14px; font-weight: bold; color: #e91e63; margin-bottom: 8px;">💌 想对你说</div>
-    <div style="font-size: 15px; color: #333; line-height: 1.8; text-align: center; padding: 8px 0;">
-      ${message}
-    </div>
+  <div style="background:rgba(255,255,255,0.85);border-radius:14px;padding:18px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:bold;color:#e91e63;margin-bottom:8px">💌 想对你说</div>
+    <div style="font-size:15px;color:#333;line-height:1.8;text-align:center;padding:8px 0">${message}</div>
   </div>
 
-  <div style="background: rgba(255,255,255,0.85); border-radius: 14px; padding: 18px;">
-    <div style="font-size: 14px; font-weight: bold; color: #e91e63; margin-bottom: 8px;">📖 今日语录</div>
-    <div style="font-size: 14px; color: #666; line-height: 1.8; text-align: center; font-style: italic; padding: 8px 0;">
-      「${quote}」
-    </div>
+  <div style="background:rgba(255,255,255,0.85);border-radius:14px;padding:18px">
+    <div style="font-size:14px;font-weight:bold;color:#e91e63;margin-bottom:8px">📖 今日语录</div>
+    <div style="font-size:14px;color:#666;line-height:1.8;text-align:center;font-style:italic;padding:8px 0">「${quote}」</div>
   </div>
 
 </div>`;
@@ -178,17 +185,10 @@ function buildMessage(weather, quoteIndex, msgIndex) {
 
 // ========== 推送到微信 ==========
 async function pushToWechat(title, content) {
-  const res = await fetch('https://www.pushplus.plus/send', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      token: TOKEN,
-      title: title,
-      content: content,
-      template: 'html'
-    })
+  const result = await httpPost('https://www.pushplus.plus/send', {
+    token: TOKEN, title: title, content: content, template: 'html'
   });
-  return res.json();
+  return result;
 }
 
 // ========== 主函数 ==========
@@ -202,16 +202,14 @@ async function main() {
   try {
     console.log('🌤 正在获取天气...');
     const weather = await getWeather(CITY);
-
-    // 按日期轮换情话和消息（每天不同）
-    const today = new Date();
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-    const quoteIndex = dayOfYear % loveQuotes.length;
-    const msgIndex = dayOfYear % dailyMessages.length;
-
     console.log(`📍 ${weather.city} | 🌡 ${weather.temp}°C | ☁ ${weather.weather}`);
 
-    const content = buildMessage(weather, quoteIndex, msgIndex);
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+    const quote = loveQuotes[dayOfYear % loveQuotes.length];
+    const message = dailyMessages[dayOfYear % dailyMessages.length];
+
+    const content = buildMessage(weather, quote, message);
     const title = `💕 早安，${HER_NAME}`;
 
     console.log('📤 正在推送...');
