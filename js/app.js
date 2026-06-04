@@ -178,7 +178,11 @@ function renderLatestMemories() {
     var text = m.text || (m.chats ? m.chats[0].text : '');
     var el = document.createElement('div');
     el.className = 'latest-card';
-    el.onclick = function() { switchPage('story'); };
+    el.dataset.date = m.date;
+    el.onclick = function() { 
+      switchPage('story');
+      filterBy(m.date.substring(0,7));
+    };
     el.innerHTML = '<div class="latest-card-icon">💕</div>' +
       '<div class="latest-card-info"><div class="latest-card-title">' + (m.title || '回忆') + '</div>' +
       '<div class="latest-card-date">' + m.date + '</div>' +
@@ -247,7 +251,9 @@ function buildFilters() {
 
 function filterBy(filter, el) {
   document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
-  (el || event.target).classList.add('active');
+  if (el && el.classList) { el.classList.add('active'); } else {
+    document.querySelectorAll('.filter-tab').forEach(function(b) { if (b.dataset.ym === filter) b.classList.add('active'); });
+  }
   var items = filter === 'all' ? memories : memories.filter(function(m) { return m.date.substring(0,7) === filter; });
   renderTimeline(items);
 }
