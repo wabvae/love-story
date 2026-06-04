@@ -1,4 +1,4 @@
-name: 早安推送 💕
+name: 早安推送
 
 on:
   schedule:
@@ -10,14 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Generate Morning Push
         env:
-          PUSHPLUS_TOKEN: *** secrets.PUSHPLUS_TOKEN }}
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           HER_NAME: ${{ secrets.HER_NAME }}
         run: node scripts/morning-push.js
