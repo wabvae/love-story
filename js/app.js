@@ -172,10 +172,18 @@ function renderPhotoStrip() {
 function renderLatestMemories() {
   var container = document.getElementById('latestMemories');
   if (!container) return;
-  var latest = memories.slice(0, 5);
   container.innerHTML = '';
-  latest.forEach(function(m, idx) {
+  memories.forEach(function(m, idx) {
     var text = m.text || (m.chats ? m.chats[0].text : '');
+    var photoHtml = '';
+    if (m.photos && m.photos.length) {
+      photoHtml = '<div class="latest-card-photos">';
+      m.photos.slice(0,3).forEach(function(p) {
+        photoHtml += '<img src="photos/' + p + '" loading="lazy">';
+      });
+      if (m.photos.length > 3) photoHtml += '<span class="latest-card-more">+' + (m.photos.length - 3) + '</span>';
+      photoHtml += '</div>';
+    }
     var el = document.createElement('div');
     el.className = 'latest-card';
     el.onclick = function() { 
@@ -183,10 +191,11 @@ function renderLatestMemories() {
       renderTimeline([memories[idx]]);
       document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
     };
-    el.innerHTML = '<div class="latest-card-icon">💕</div>' +
-      '<div class="latest-card-info"><div class="latest-card-title">' + (m.title || '回忆') + '</div>' +
-      '<div class="latest-card-date">' + m.date + '</div>' +
-      '<div class="latest-card-text">' + escHtml(text.substring(0,40)) + '</div></div>';
+    el.innerHTML = '<div class="latest-card-header"><span class="latest-card-icon">💕</span>' +
+      '<div class="latest-card-meta"><div class="latest-card-title">' + (m.title || '回忆') + '</div>' +
+      '<div class="latest-card-date">' + m.date + '</div></div></div>' +
+      '<div class="latest-card-text">' + escHtml(text.substring(0,80)) + '</div>' +
+      photoHtml;
     container.appendChild(el);
   });
 }
