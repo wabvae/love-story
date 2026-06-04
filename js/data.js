@@ -21,12 +21,7 @@ const memories = [
     text: '和你在一起的每一天都值得被记录下来 💕',
     photos: ['photo_07.jpg', 'photo_08.jpg', 'photo_09.jpg', 'photo_10.jpg', 'photo_11.jpg', 'photo_12.jpg']
   },
-  {
-    date: '2026-06-02',
-    title: '未完待续 💝',
-    text: '故事还在继续，未来还有更多美好等着我们 💕',
-    photos: ['photo_13.jpg', 'photo_14.jpg', 'photo_15.jpg']
-  },
+
   {
     date: '2026-06-01',
     title: '六一快乐 🎈',
@@ -56,37 +51,14 @@ const memories = [
     title: '五一劳动节 🎉',
     text: '放假啦！终于可以好好陪你了～一起出去玩了两天，开心！'
   },
-  {
-    date: '2026-04-15',
-    title: '春天的约会 🌸',
-    chats: [
-      { name: '他', text: '今天天气真好，我们去看花吧' },
-      { name: '她', text: '好呀！春天的花都开了 🌷' },
-      { name: '他', text: '你比花还好看 😄' },
-      { name: '她', text: '嘻嘻嘴真甜 🥰' }
-    ]
-  },
+
   {
     date: '2026-04-08',
     title: '撒椒山野火锅 🍲',
     text: '那天我们去吃了新开的撒椒山野火锅，第一次来就被惊艳到了。鸳鸯锅底一端上来就香气四溢，辣锅红油翻滚，清汤锅奶白浓醇，涮着新鲜的牛肉和蔬菜，每一口都是满足。但比火锅更让我回味的，是坐在对面的你。你帮我夹菜、帮我调蘸料的样子，让我觉得——和你一起吃的每一顿饭，都是最好的味道。宝贝，以后我们还要一起去很多很多新店，吃很多很多好吃的 💕',
     photos: ['hotpot_01.jpg']
   },
-  {
-    date: '2026-04-01',
-    title: '愚人节玩笑 🃏',
-    chats: [
-      { name: '她', text: '我好像不喜欢你了' },
-      { name: '他', text: '啊？！😱' },
-      { name: '她', text: '哈哈哈愚人节快乐！被骗到了吧 😂' },
-      { name: '他', text: '吓死我了…你等着 😤' }
-    ]
-  },
-  {
-    date: '2026-03-14',
-    title: '白色情人节 💝',
-    text: '给你准备了惊喜，看到你开心的样子，比什么都值得。'
-  },
+
   {
     date: '2026-02-14',
     title: '第一个情人节 💕',
@@ -175,3 +147,5 @@ const achievements = [
   { id: 'pet', icon: '🐱', title: '养宠物', desc: '一起养一只小可爱', unlocked: false },
   { id: 'propose', icon: '💍', title: '永远', desc: '往后余生都是你', unlocked: false }
 ];
+
+
