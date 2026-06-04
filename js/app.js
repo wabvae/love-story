@@ -174,14 +174,14 @@ function renderLatestMemories() {
   if (!container) return;
   var latest = memories.slice(0, 5);
   container.innerHTML = '';
-  latest.forEach(function(m) {
+  latest.forEach(function(m, idx) {
     var text = m.text || (m.chats ? m.chats[0].text : '');
     var el = document.createElement('div');
     el.className = 'latest-card';
-    el.dataset.date = m.date;
     el.onclick = function() { 
       switchPage('story');
-      filterBy(m.date.substring(0,7));
+      renderTimeline([memories[idx]]);
+      document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
     };
     el.innerHTML = '<div class="latest-card-icon">💕</div>' +
       '<div class="latest-card-info"><div class="latest-card-title">' + (m.title || '回忆') + '</div>' +
