@@ -1,5 +1,5 @@
 // ===== 密码 =====
-const SITE_PASSWORD = '1006';
+const SITE_PASSWORD = '2000106';
 
 // ===== 在一起的日子（从这天开始算） =====
 const LOVE_START_DATE = '2025-12-06';
